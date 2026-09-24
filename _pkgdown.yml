@@ -1,0 +1,80 @@
+url: https://yelleknek.github.io/POEM/
+
+template:
+  bootstrap: 5
+  bslib:
+    primary: "#1c5a83"     # azurite, the hex ground
+    secondary: "#c69c3f"   # brass, the hex trim
+    border-radius: 0.5rem
+
+home:
+  title: "POEM: Power Enhancement for High-Dimensional Mediation Analysis"
+  description: >
+    Powerful global tests for high-dimensional mediation analysis with
+    heterogeneous and even contrasting mediation effects, for continuous,
+    binary, and count outcomes, with identification of the active mediators
+    under familywise error rate or false discovery rate control. Implements
+    Yu and Kelley (in press, Journal of the American Statistical Association).
+
+navbar:
+  structure:
+    left:  [intro, reference, articles, news]
+    right: [search, github]
+
+articles:
+- title: Start here
+  navbar: ~
+  contents:
+  - POEM
+- title: The article and the benchmark
+  contents:
+  - reproducing-the-article
+  - poem-vs-competitors
+
+# Organized by workflow. pkgdown::check_pkgdown() verifies that every
+# documented topic is listed; place each new export in its family below.
+reference:
+- title: Testing for mediation
+  desc: The power-enhanced global test and its outcome-specific workers.
+  contents:
+  - pe_mediation
+  - pe_mediate
+  - pe_mediation_linear
+  - pe_mediation_logistic
+  - pe_mediation_poisson
+  - pe_lambda_grid
+- title: Identifying the active mediators
+  contents:
+  - pe_mediators
+  - pe_selection
+- title: Planning and Monte Carlo studies
+  desc: Size, power, identification, and sample size planning by simulation.
+  contents:
+  - pe_power_curve
+  - pe_simulation_study
+  - pe_identification_study
+  - ss_power_pe_mediation
+- title: Simulating mediation data
+  contents:
+  - simulate_mediation_data
+  - simulate_guo_mediation
+  - mediation_ar1_cov
+- title: The WHO health-expenditure analysis
+  contents:
+  - WHO_mediation_analysis
+  - WHO_mediation_design
+- title: Results, printing, and tidiers
+  contents:
+  - poem_tbl
+  - summary.poem_tbl
+  - plot.poem_tbl
+  - poem_broom
+- title: Data sets
+  contents:
+  - WHO_health_mediation
+  - WHO_indicator_codebook
+  - guo_calibration
+  - example_data
+- title: Package overview
+  contents:
+  - POEM-package

@@ -1,0 +1,30 @@
+cff-version: 1.2.0
+message: "To cite POEM in publications, cite the article that introduces the methods."
+title: "POEM: Power Enhancement for High-Dimensional Mediation Analysis"
+type: software
+version: 1.0.0
+date-released: 2026-09-22
+license: GPL-3.0-or-later
+repository-code: "https://github.com/yelleKneK/POEM"
+url: "https://yelleknek.github.io/POEM/"
+authors:
+  - family-names: Yu
+    given-names: Xiufan
+    email: xiufan.yu@nd.edu
+    affiliation: University of Notre Dame
+  - family-names: Kelley
+    given-names: Ken
+    email: kkelley@nd.edu
+    affiliation: University of Notre Dame
+    orcid: "https://orcid.org/0000-0002-4756-8360"
+preferred-citation:
+  type: article
+  title: "Power Enhancement in High-Dimensional Heterogeneous Mediation Analysis"
+  authors:
+    - family-names: Yu
+      given-names: Xiufan
+    - family-names: Kelley
+      given-names: Ken
+  journal: "Journal of the American Statistical Association"
+  year: 2026
+  status: in-press

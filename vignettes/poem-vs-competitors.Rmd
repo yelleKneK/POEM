@@ -1,0 +1,307 @@
+---
+title: "POEM and the Competition: A Head-to-Head"
+output:
+  rmarkdown::html_vignette:
+    toc: true
+    toc_depth: 2
+vignette: >
+  %\VignetteIndexEntry{POEM and the Competition: A Head-to-Head}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", fig.width = 7,
+                      fig.height = 4.2)
+library(POEM)
+set.seed(113)
+```
+
+The established test for whether *any* of many candidate mediators is active
+is the total-indirect-effect Wald test of Guo et al. (2022), which this
+package reports as **HDMM**. POEM's power-enhanced test (**PE**) keeps that
+test intact and adds a component that reads the marginal signal from
+individual mediators. The two therefore agree by construction whenever the
+enhancement is zero, and differ only when it is not.
+
+Under the global null the two coincide, and both hold their size. When
+the active mediators all push the outcome the same way, both reject and
+the enhancement adds a margin (the article's Figure 1(a)); that
+homogeneous case is the easy one, and it is not the one that motivates
+the method. The cases that do, mediators acting in different directions,
+are where the benchmark loses power and the power-enhanced test does not.
+This vignette leads with those, then shows the homogeneous case, and lets
+the output speak throughout. (Other comparators named
+in the article, namely HILMA, GlobalTest, HDMT, and DACT, live in separate
+packages; the closing section shows how to fold them in if you have them
+installed.)
+
+# One data set, two verdicts
+
+Consider two data sets with the same exposure, mediators, and sample size.
+In the first, the active mediators all push the outcome the same way
+(**homogeneous**). In the second, they push in opposite directions and
+exactly cancel, so the total indirect effect is zero even though four
+mediators are genuinely active (**contrasting**).
+
+```{r blind-spot}
+homo <- simulate_mediation_data(n = 200, p = 80, outcome = "continuous",
+                                pattern = "homogeneous", c1 = 1)
+cont <- simulate_mediation_data(n = 200, p = 80, outcome = "continuous",
+                                pattern = "contrasting", c1 = 1)
+
+verdict <- function(d) {
+  f <- pe_mediation(d$X, d$Y, d$M, outcome = "continuous")
+  c(HDMM = f$value[f$term == "pval_hdmm"], PE = f$value[f$term == "pval_pe"])
+}
+round(rbind(homogeneous = verdict(homo), contrasting = verdict(cont)), 4)
+```
+
+When the mediators agree in sign, both tests reject, the power-enhanced
+one more decisively. When the mediators cancel, the benchmark sees a zero
+total indirect effect and returns a large p-value, while the
+power-enhanced test still detects mediation. Both data sets contain real
+mediation; only one test sees it in both.
+
+# Size: neither test trades error for power
+
+A fair comparison starts at the null. With no active mediator (`c1 = 0`) a
+test should reject about 5% of the time. The enhancement is designed to
+vanish under the null, so PE inherits the benchmark's size rather than
+buying power with inflated error:
+
+```{r size}
+size <- pe_power_curve(n = 150, p = 50, outcome = "continuous",
+                       pattern = "contrasting", c1_grid = 0, n_rep = 60)
+size[, c("rejection_hdmm", "rejection_pe")]
+```
+
+Both sit near the nominal 0.05 (with 60 replications a rate near 0.05 is
+known to within about 0.03). Whatever PE gains later, it does not come
+from a looser null.
+
+# Power where it counts: heterogeneous mediation
+
+A signal-strength sweep makes the gap visible. The shared helper below draws
+the benchmark and the power-enhanced rejection rates on one plot.
+
+```{r draw-helper}
+draw <- function(pc, main) {
+  plot(pc$c1, pc$rejection_pe, type = "b", pch = 19, ylim = c(0, 1),
+       xlab = expression(c[1]), ylab = "rejection rate", main = main)
+  lines(pc$c1, pc$rejection_hdmm, type = "b", pch = 1, lty = 2)
+  abline(h = 0.05, col = "grey60", lty = 3)
+  legend("topleft", c("PE", "HDMM"), pch = c(19, 1), lty = c(1, 2), bty = "n")
+}
+grid <- c(0, 0.25, 0.5, 0.75, 1)
+```
+
+Two heterogeneous settings, both realistic. On the left, the active
+mediators **fully cancel** (the total indirect effect is exactly zero). On
+the right, six mediators of **mixed sign** only *partially* cancel, leaving a
+small nonzero total indirect effect, the kind of messy signal real data
+actually presents. In both the benchmark stays near its size across the
+grid while the power-enhanced test rises above it.
+
+```{r dominate, fig.height = 4, fig.alt = "Rejection-rate curves showing PE dominating HDMM under fully-cancelling and partially-cancelling heterogeneous mediation"}
+p <- 50
+# Mixed-sign mediators that only partially cancel: a small but nonzero total
+# indirect effect, where the benchmark is weak and the enhancement is not.
+alpha_mix <- c(1, -0.9, 0.8, -0.7, 0.6, -0.5, rep(0, p - 6))
+tau_mix   <- c(rep(0.3, 6), rep(0, p - 6))
+
+pc_cancel <- pe_power_curve(n = 150, p = p, outcome = "continuous",
+                            pattern = "contrasting", c1_grid = grid, n_rep = 30)
+pc_mixed  <- pe_power_curve(n = 150, p = p, outcome = "continuous",
+                            c1_grid = grid, n_rep = 30,
+                            outcome_args = list(alpha_m = alpha_mix, tau = tau_mix))
+
+op <- par(mfrow = c(1, 2))
+draw(pc_cancel, "fully cancelling")
+draw(pc_mixed, "partially cancelling")
+par(op)
+```
+
+At `c1 = 1` the rates are
+`r sprintf("%.2f", pc_cancel$rejection_hdmm[5])` against
+`r sprintf("%.2f", pc_cancel$rejection_pe[5])` (fully cancelling) and
+`r sprintf("%.2f", pc_mixed$rejection_hdmm[5])` against
+`r sprintf("%.2f", pc_mixed$rejection_pe[5])` (partially cancelling), from
+30 replications, so each carries a Monte Carlo standard error of up to
+0.09. The benchmark is built on the total indirect effect; when that
+quantity is small or zero despite active mediators, it has little to
+detect. The power-enhanced test reads the individual mediators directly.
+The gap is larger at the article's design, where the default tuning grid
+costs less power (see `?pe_lambda_grid`): at `n = 300`, `p = 500`, and
+`c1 = 1` the article's Figure 1(b) shows about 0.15 against 0.76.
+
+# Homogeneous Mediation: Both Tests Work, and the Enhancement Still Helps
+
+The easy case. When every active mediator pushes the same way, the total
+indirect effect is large and the benchmark is already powerful; the
+enhancement adds a margin rather than a rescue:
+
+```{r homo-curve, fig.height = 4, fig.width = 4.2, fig.alt = "Rejection-rate curves under homogeneous mediation, where HDMM and PE nearly coincide"}
+pc_homo <- pe_power_curve(n = 150, p = p, outcome = "continuous",
+                          pattern = "homogeneous", c1_grid = grid, n_rep = 30)
+draw(pc_homo, "homogeneous")
+```
+
+At `c1 = 0.5` the benchmark rejects in
+`r sprintf("%.0f", 100 * pc_homo$rejection_hdmm[3])` percent of
+replications and the power-enhanced test in
+`r sprintf("%.0f", 100 * pc_homo$rejection_pe[3])` percent (the article's
+Figure 1(a) prints 0.690 against 0.940 at its design). This is the honest
+boundary of the claim: where the benchmark is already strong POEM adds a
+margin, and where the benchmark is weak it pulls away.
+
+# The pattern holds for binary and count outcomes
+
+The enhancement is not particular to continuous outcomes. Here is the
+rejection rate at a fixed contrasting signal (`c1 = 1`) for all three
+outcome models; the benchmark stays near its size (within Monte Carlo
+error, about 0.1 at 20 replications) while PE is well above it:
+
+```{r cross-outcome}
+at_c1 <- function(outcome, c2) {
+  pc <- pe_power_curve(n = 180, p = 50, outcome = outcome,
+                       pattern = "contrasting", c1_grid = 1, c2 = c2,
+                       n_rep = 20)
+  c(HDMM = pc$rejection_hdmm, PE = pc$rejection_pe)
+}
+round(rbind(continuous = at_c1("continuous", 0.5),
+            binary     = at_c1("binary", 1),
+            count      = at_c1("count", 0.4)), 3)
+```
+
+# Beyond a yes/no: which mediators?
+
+The benchmark answers one global question. The power-enhanced screen also
+returns *which* mediators are active, and how reliably. Over repeated
+contrasting data sets, it recovers the active set with high precision and
+moderate recall, while keeping false positives rare:
+
+```{r identification}
+id <- pe_identification_study(n = 150, p = 60, outcome = "continuous",
+                              pattern = "contrasting", c1_grid = c(0, 1),
+                              n_rep = 30, methods = "Bonferroni")
+id
+```
+
+The familywise error rate is
+`r sprintf("%.2f", id$fwer[id$c1 == 0])` at the null and
+`r sprintf("%.2f", id$fwer[id$c1 == 1])` at `c1 = 1`; precision and
+recall at `c1 = 1` are `r sprintf("%.2f", id$precision[id$c1 == 1])` and
+`r sprintf("%.2f", id$recall[id$c1 == 1])` at this small design (30
+replications). At the article's design the supplement prints, for the
+contrasting setting at `c1 = 0.6`, a familywise error rate of 0.000 with
+precision 0.403 and recall 0.122, which the default grid reproduces. The
+benchmark offers no comparable list, because a total-indirect-effect test
+of zero points to no mediator at all.
+
+# On real data
+
+The contrast is not only a simulation artifact. On the shipped WHO
+health-expenditure data, `summary()` reports, group by group, where the
+power-enhanced test finds mediation the benchmark does not:
+
+```{r who}
+imr <- WHO_mediation_analysis("imr", groupings = c("global", "region", "income"),
+                              lambda_grid = seq(0.1, 5, length.out = 100))
+summary(imr)
+```
+
+In several regions and income groups the benchmark p-value is large (in
+the Western Pacific it is near one), yet the power-enhanced test detects a
+specific health-expenditure indicator. These are the cases where mediators
+act heterogeneously and the conventional test is blind.
+
+(The small region-by-income cells contain indicators that are constant
+within the cell. `WHO_mediation_analysis()` drops those automatically; when
+calling `pe_mediation()` on such a subset yourself, pass `drop_constant =
+TRUE` to do the same.)
+
+# A balanced scorecard
+
+| Situation | HDMM (benchmark) | PE (POEM) |
+|---|---|---|
+| Null (no mediation) | correct ~5% size | correct ~5% size |
+| Homogeneous mediation | powerful | powerful, with a margin |
+| Heterogeneous: fully cancelling | no power | recovers the signal |
+| Heterogeneous: partially cancelling | weak | recovers the signal |
+| Which mediators are active | not provided | identified, with FWER/FDR control |
+| Real-data subgroups | misses several | finds them |
+
+PE holds its size within Monte Carlo error of the nominal level in every
+setting the article reports, adds a margin where the benchmark is already
+strong, and supplies power where the benchmark has little. That is the
+whole of the claim, and the rows above are the evidence for it.
+
+# Folding in other comparators
+
+The article also benchmarks against HILMA (Zhou et al. 2020), GlobalTest
+(Djordjilovic et al. 2019), and, for individual-mediator identification,
+HDMT (Dai et al. 2022) and DACT (Liu et al. 2022). Those methods live in
+their own packages, which POEM does not depend on. If you have them
+installed, they slot directly alongside a POEM fit on the same simulated
+data. For example:
+
+```{r external, eval = FALSE}
+d <- simulate_mediation_data(n = 300, p = 500, outcome = "continuous",
+                             pattern = "contrasting", c1 = 0.5)
+pe <- pe_mediation(d$X, d$Y, d$M, outcome = "continuous")
+
+# HILMA (package 'freebird'): a debiased-lasso total-mediation-effect test.
+hilma_p <- freebird::hilma(d$Y, d$M, d$X)$pvalue
+
+# GlobalTest (Bioconductor package 'globaltest'): a score test of the
+# mediator block against the outcome.
+gt_p <- globaltest::p.value(globaltest::gt(d$Y, d$M))
+
+data.frame(method = c("HDMM", "PE-HDMM", "HILMA", "GlobalTest"),
+           pval = c(pe$value[pe$term == "pval_hdmm"],
+                    pe$value[pe$term == "pval_pe"], hilma_p, gt_p))
+```
+
+Run on contrasting data, the total-indirect-effect methods (HDMM, HILMA)
+behave alike, because they are built on the quantity that cancels, while the
+power-enhanced test detects the active mediators, the comparison the
+article's figures report in full.
+
+# References
+
+Yu, X., and Kelley, K. (in press). Power Enhancement in High-Dimensional
+Heterogeneous Mediation Analysis. *Journal of the American Statistical
+Association*.
+
+Guo, X., Li, R., Liu, J., & Zeng, M. (2022). High-dimensional mediation
+analysis for selecting DNA methylation loci mediating childhood trauma and
+cortisol stress reactivity. *Journal of the American Statistical
+Association, 117*(539), 1110--1121.
+https://doi.org/10.1080/01621459.2022.2053136
+
+Zhou, R. R., Wang, L., & Zhao, S. D. (2020). Estimation and inference for
+the indirect effect in high-dimensional linear mediation models.
+*Biometrika, 107*(3), 573--589. https://doi.org/10.1093/biomet/asaa016
+
+Djordjilovic, V., Page, C. M., Gran, J. M., Nost, T. H., Sandanger, T. M.,
+Veierod, M. B., & Thoresen, M. (2019). Global test for high-dimensional
+mediation: Testing groups of potential mediators. *Statistics in Medicine,
+38*(18), 3346--3360. https://doi.org/10.1002/sim.8199
+
+Dai, J. Y., Stanford, J. L., & LeBlanc, M. (2022). A multiple-testing
+procedure for high-dimensional mediation hypotheses. *Journal of the
+American Statistical Association, 117*(537), 198--213.
+https://doi.org/10.1080/01621459.2020.1765785
+
+Liu, Z., Shen, J., Barfield, R., Schwartz, J., Baccarelli, A. A., & Lin, X.
+(2022). Large-scale hypothesis testing for causal mediation effects with
+applications in genome-wide epigenetic studies. *Journal of the American
+Statistical Association, 117*(537), 67--81.
+https://doi.org/10.1080/01621459.2021.1914634
+
+# Session Information
+
+```{r session-info}
+sessionInfo()
+```

@@ -1,0 +1,33 @@
+{
+  "title": "POEM: Power Enhancement for High-Dimensional Mediation Analysis",
+  "upload_type": "software",
+  "description": "<p>Provides powerful global tests for high-dimensional mediation analysis with heterogeneous (and even contrasting) mediation effects, for continuous, binary, and count outcomes. The power enhancement (PE) idea augments a Wald test on the total indirect effect with a component that captures marginal signals from individual mediators, so that active mediators are detected even when their individual indirect effects cancel and the total indirect effect is zero. The package also identifies which individual mediators are active with family-wise error rate or false discovery rate control. The methods implement Yu and Kelley (in press), \"Power Enhancement in High-Dimensional Heterogeneous Mediation Analysis\" (Journal of the American Statistical Association); the package also simulates mediation data under the homogeneous, heterogeneous, and contrasting patterns that the article studies, ships its empirical health-expenditure data as a benchmark, and reproduces its Monte Carlo size and power studies. The name, from POwer-Enhanced Mediation, encodes the method. All exported functions return a tidy data frame that prints with sensible rounding and composes with the broader R ecosystem.<\/p>",
+  "creators": [
+    {
+      "name": "Yu, Xiufan",
+      "affiliation": "University of Notre Dame"
+    },
+    {
+      "name": "Kelley, Ken",
+      "affiliation": "University of Notre Dame",
+      "orcid": "0000-0002-4756-8360"
+    }
+  ],
+  "license": "gpl-3.0-or-later",
+  "access_right": "open",
+  "language": "eng",
+  "keywords": [
+    "R package",
+    "mediation analysis",
+    "high-dimensional inference",
+    "power enhancement",
+    "global testing",
+    "heterogeneous mediation effects",
+    "false discovery rate"
+  ],
+  "version": "1.0.0",
+  "publication_date": "2026-09-25",
+  "references": [
+    "Yu, X., & Kelley, K. (in press). Power Enhancement in High-Dimensional Heterogeneous Mediation Analysis. Journal of the American Statistical Association."
+  ]
+}
