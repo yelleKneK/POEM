@@ -10,7 +10,7 @@
 ## Citation
 
 Source:
-[`inst/CITATION`](https://github.com/yelleKneK/POEM/blob/main/inst/CITATION)
+[`inst/CITATION`](https://github.com/yelleKneK/POEM/blob/v1.0.0/inst/CITATION)
 
 Yu, X., & Kelley, K. (in press). Power Enhancement in High-Dimensional
 Heterogeneous Mediation Analysis. Journal of the American Statistical
