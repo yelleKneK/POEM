@@ -46,7 +46,7 @@ matrix interface pe_mediation() is the workhorse."><meta property="og:image" con
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Power-enhanced mediation test from a data frame (formula interface)</h1>
-      <small class="dont-index">Source: <a href="https://github.com/yelleKneK/POEM/blob/v1.0.0/R/pe_mediate.R" class="external-link"><code>R/pe_mediate.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/yelleKneK/POEM/blob/main/R/pe_mediate.R" class="external-link"><code>R/pe_mediate.R</code></a></small>
       <div class="d-none name"><code>pe_mediate.Rd</code></div>
     </div>
 
@@ -116,6 +116,7 @@ numeric columns enter as is. Default <code>NULL</code>.</p></dd>
     <div class="dont-index"><p><code><a href="pe_mediation.html">pe_mediation()</a></code> for the matrix interface,
 <code><a href="WHO_mediation_design.html">WHO_mediation_design()</a></code> for the worked health-expenditure design.</p>
 <p>Other mediation tests:
+<code><a href="pe_lambda_grid.html">pe_lambda_grid()</a></code>,
 <code><a href="pe_mediation.html">pe_mediation()</a></code>,
 <code><a href="pe_mediation_linear.html">pe_mediation_linear()</a></code>,
 <code><a href="pe_mediation_logistic.html">pe_mediation_logistic()</a></code>,
@@ -133,27 +134,29 @@ numeric columns enter as is. Default <code>NULL</code>.</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Build a small data frame and test through the formula interface.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">113</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_mediation_data.html">simulate_mediation_data</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">150</span>, p <span class="op">=</span> <span class="fl">40</span>, outcome <span class="op">=</span> <span class="st">"continuous"</span>,</span></span>
+<span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_mediation_data.html">simulate_mediation_data</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">200</span>, p <span class="op">=</span> <span class="fl">60</span>, outcome <span class="op">=</span> <span class="st">"continuous"</span>,</span></span>
 <span class="r-in"><span>                             pattern <span class="op">=</span> <span class="st">"contrasting"</span>, c1 <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">Y</span>, x <span class="op">=</span> <span class="va">d</span><span class="op">$</span><span class="va">X</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span>, <span class="va">d</span><span class="op">$</span><span class="va">M</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">meds</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">grep</a></span><span class="op">(</span><span class="st">"^X"</span>, <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">df</span><span class="op">)</span>, value <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>   <span class="co"># the mediator columns</span></span></span>
+<span class="r-in"><span><span class="co"># The mediator columns are named, so the footer names the active ones.</span></span></span>
 <span class="r-in"><span><span class="fu">pe_mediate</span><span class="op">(</span><span class="va">y</span> <span class="op">~</span> <span class="va">x</span>, data <span class="op">=</span> <span class="va">df</span>, mediators <span class="op">=</span> <span class="va">meds</span>, outcome <span class="op">=</span> <span class="st">"continuous"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  term                  value   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  stat_hdmm             0.1615  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  pval_hdmm             0.6878  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  stat_pe               440.3   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  j_pe                  440.1   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  stat_hdmm             0.03881 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  pval_hdmm             0.8438  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  stat_pe               174.2   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  j_pe                  174.1   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  pval_pe               &lt; 0.0001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_effect -0.03065</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_lower  -0.1801 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_upper  0.1188  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  n_active_mediators    2       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_effect 0.01054 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_lower  -0.0943 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_upper  0.1154  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  n_active_mediators    1       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  df                    1       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  n_candidate_mediators 40      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  n_observations        150     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  n_candidate_mediators 60      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  n_observations        200     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Outcome model: continuous (linear)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Active mediators identified (2): 3, 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Active mediators identified (1): X2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Tuning parameter (HBIC): lambda = 0.199 from 20 values in [0.199, 0.388] (the grid's lower end)</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

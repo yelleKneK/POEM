@@ -23,9 +23,11 @@ ss_power_pe_mediation(
   c2 = 0.5,
   target_power = 0.8,
   n_rep = 200,
-  alpha = 0.05,
+  alpha_level = 0.05,
   method = c("Bonferroni", "BH", "BY"),
   error_level = 0.05,
+  lambda_grid = NULL,
+  lambda_grid_reduced = NULL,
   cores = 1L,
   seed = NULL
 )
@@ -66,7 +68,7 @@ ss_power_pe_mediation(
 
   Monte Carlo replications per candidate `n`. Default 200.
 
-- alpha:
+- alpha_level:
 
   Significance level. Default 0.05.
 
@@ -75,9 +77,20 @@ ss_power_pe_mediation(
   Passed to
   [`pe_mediation()`](https://yelleknek.github.io/POEM/reference/pe_mediation.md).
 
+- lambda_grid, lambda_grid_reduced:
+
+  Passed to
+  [`pe_mediation()`](https://yelleknek.github.io/POEM/reference/pe_mediation.md);
+  the default `NULL` uses the family's default grid at each candidate
+  `n` (for a continuous outcome the article's grid rescaled by
+  [`pe_lambda_grid()`](https://yelleknek.github.io/POEM/reference/pe_lambda_grid.md),
+  so the grid follows the sample size being planned).
+
 - cores:
 
-  Number of CPU cores (Unix forking). Default 1.
+  Number of CPU cores (Unix forking). A seeded parallel run is
+  reproducible across runs at the same `cores` but need not match a
+  serial run. Default 1.
 
 - seed:
 
@@ -86,9 +99,13 @@ ss_power_pe_mediation(
 ## Value
 
 A tidy `data.frame` (class `poem_tbl`) with one row per candidate sample
-size and columns `n`, `power_pe`, `power_hdmm`, and `n_valid`. The
-smallest `n` reaching `target_power` for the PE test is stored in the
-`"recommended_n"` attribute (`NA` if no grid value reaches it).
+size and columns `n`, `power_pe`, `power_hdmm`, `n_valid`, and `n_empty`
+(see
+[`pe_power_curve()`](https://yelleknek.github.io/POEM/reference/pe_power_curve.md)).
+The smallest `n` reaching `target_power` for the PE test is stored in
+the `"recommended_n"` attribute (`NA` if no grid value reaches it), with
+`"target_power"`, `"outcome"`, `"pattern"`, `"c1"`, `"c2"`, `"n_rep"`,
+and `"alpha_level"`.
 
 ## Details
 
@@ -97,8 +114,8 @@ no analytic power expression exists for the PE test, so sample size is
 instead determined by direct Monte Carlo simulation. Power is estimated
 by simulating `n_rep` data sets at each candidate `n` with
 [`simulate_mediation_data()`](https://yelleknek.github.io/POEM/reference/simulate_mediation_data.md)
-and recording how often the test rejects at level `alpha`. Because the
-estimate is a Monte Carlo proportion, it carries simulation error of
+and recording how often the test rejects at level `alpha_level`. Because
+the estimate is a Monte Carlo proportion, it carries simulation error of
 roughly \\\sqrt{power(1 - power) / n\\rep}\\; raise `n_rep` for a
 smoother curve and a more stable recommendation. The grid approach
 (rather than a root search) is deliberate: the power curve is monotone
@@ -128,18 +145,20 @@ Xiufan Yu and Ken Kelley
 ## Examples
 
 ``` r
-# \donttest{
+# n_rep = 5 keeps this example fast; a power estimate from five
+# replications has a Monte Carlo standard error of up to 0.22, so the
+# recommended n here is a demonstration, not a plan. Planning a study
+# deserves n_rep of several hundred.
 set.seed(113)
 plan <- ss_power_pe_mediation(outcome = "continuous", pattern = "contrasting",
-                              p = 50, n_grid = c(80, 120, 160), n_rep = 30)
+                              p = 50, n_grid = c(80, 120, 160), n_rep = 5)
 plan
-#>  n   power_pe power_hdmm n_valid
-#>  80  0.5333   0.1333     30     
-#>  120 0.8667   0.06667    30     
-#>  160 0.9667   0.1        30     
+#>  n   power_pe power_hdmm n_valid n_empty
+#>  80  0.2      0          5       0      
+#>  120 0.4      0.4        5       0      
+#>  160 0.4      0          5       0      
 #> 
-#> Outcome model: continuous
+#> Outcome: continuous
 attr(plan, "recommended_n")
-#> [1] 120
-# }
+#> [1] NA
 ```

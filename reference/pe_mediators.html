@@ -44,7 +44,7 @@ which were screened out.'><meta property="og:image" content="https://yelleknek.g
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Per-mediator detail behind a power-enhanced mediation test</h1>
-      <small class="dont-index">Source: <a href="https://github.com/yelleKneK/POEM/blob/v1.0.0/R/pe_accessors.R" class="external-link"><code>R/pe_accessors.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/yelleKneK/POEM/blob/main/R/pe_accessors.R" class="external-link"><code>R/pe_accessors.R</code></a></small>
       <div class="d-none name"><code>pe_mediators.Rd</code></div>
     </div>
 
@@ -73,7 +73,11 @@ which were screened out.</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A tidy <code>data.frame</code> (class <code>poem_tbl</code>) with columns:</p><dl><dt>mediator</dt>
-<dd><p>Column index of the mediator in the original <code>M</code>.</p></dd>
+<dd><p>Column position of the mediator in the original <code>M</code>.</p></dd>
+
+<dt>name</dt>
+<dd><p>The mediator's column name in <code>M</code>; present only when <code>M</code>
+has column names.</p></dd>
 
 <dt>t_outcome</dt>
 <dd><p>The standardized mediator-on-outcome statistic
@@ -100,6 +104,7 @@ active.</p></dd>
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="pe_mediation.html">pe_mediation()</a></code>, <code><a href="pe_selection.html">pe_selection()</a></code>.</p>
 <p>Other mediation tests:
+<code><a href="pe_lambda_grid.html">pe_lambda_grid()</a></code>,
 <code><a href="pe_mediate.html">pe_mediate()</a></code>,
 <code><a href="pe_mediation.html">pe_mediation()</a></code>,
 <code><a href="pe_mediation_linear.html">pe_mediation_linear()</a></code>,
@@ -120,12 +125,9 @@ active.</p></dd>
 <span class="r-in"><span>                             pattern <span class="op">=</span> <span class="st">"contrasting"</span>, c1 <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="pe_mediation.html">pe_mediation</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">X</span>, <span class="va">d</span><span class="op">$</span><span class="va">Y</span>, <span class="va">d</span><span class="op">$</span><span class="va">M</span>, outcome <span class="op">=</span> <span class="st">"continuous"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">pe_mediators</span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  mediator t_outcome t_exposure screen_p  selected</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  1        21.75     0.3641     0.7158    FALSE   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  2        -10.21    3.131      0.001741   TRUE   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  3        8.602     4.349      1.365e-05  TRUE   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  4        -6.82     6.185      6.227e-10  TRUE   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  33       -2.378    -13.08     0.01741   FALSE   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  mediator t_outcome t_exposure screen_p selected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  1        18.22     0.3641     0.7158   FALSE   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  2        -7.179    3.131      0.0017    TRUE   </span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

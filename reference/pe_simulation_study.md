@@ -4,8 +4,8 @@ A convenience wrapper around
 [`pe_power_curve()`](https://yelleknek.github.io/POEM/reference/pe_power_curve.md)
 that runs the size and power study under more than one mediation pattern
 in a single call and stacks the results, so a homogeneous and a
-contrasting curve (the two panels of a figure in the manuscript come
-back together. Each pattern is swept over the same signal grid.
+contrasting curve (the two panels of a figure in the article come back
+together. Each pattern is swept over the same signal grid.
 
 ## Usage
 
@@ -18,9 +18,11 @@ pe_simulation_study(
   c1_grid = seq(0, 1, by = 0.25),
   c2 = 0.5,
   n_rep = 100,
-  alpha = 0.05,
+  alpha_level = 0.05,
   method = c("Bonferroni", "BH", "BY"),
   error_level = 0.05,
+  lambda_grid = NULL,
+  lambda_grid_reduced = NULL,
   cores = 1L,
   seed = NULL
 )
@@ -41,7 +43,8 @@ pe_simulation_study(
   Character vector of mediation patterns to run. Default
   `c("homogeneous", "contrasting")`.
 
-- c1_grid, c2, n_rep, alpha, method, error_level, cores, seed:
+- c1_grid, c2, n_rep, alpha_level, method, error_level, lambda_grid,
+  lambda_grid_reduced, cores, seed:
 
   Passed to
   [`pe_power_curve()`](https://yelleknek.github.io/POEM/reference/pe_power_curve.md).
@@ -51,8 +54,9 @@ pe_simulation_study(
 A tidy `data.frame` (class `poem_tbl`) with a leading `pattern` column
 and the
 [`pe_power_curve()`](https://yelleknek.github.io/POEM/reference/pe_power_curve.md)
-columns (`c1`, `rejection_hdmm`, `rejection_pe`, `n_valid`) for each
-pattern.
+columns (`c1`, `rejection_hdmm`, `rejection_pe`, `n_valid`, `n_empty`)
+for each pattern. The settings are recorded in the attributes `outcome`,
+`n`, `p`, `n_rep`, `alpha_level`, `error_level`, and `lambda_grid`.
 
 ## See also
 
@@ -78,18 +82,18 @@ Xiufan Yu and Ken Kelley
 ## Examples
 
 ``` r
-# \donttest{
+# n_rep = 5 keeps this example fast; a rate from five replications has a
+# Monte Carlo standard error of up to 0.22, so read the shape, not the
+# numbers. A reported study uses the article's design (n = 300, p = 500)
+# and 1000 replications.
 set.seed(113)
 pe_simulation_study(n = 120, p = 50, outcome = "continuous",
-                    c1_grid = c(0, 0.5, 1), n_rep = 20)
-#>  pattern     c1  rejection_hdmm rejection_pe n_valid
-#>  homogeneous 0   0.05           0.05         20     
-#>  homogeneous 0.5 0.35           0.75         20     
-#>  homogeneous 1   0.9            1            20     
-#>  contrasting 0   0.05           0.05         20     
-#>  contrasting 0.5 0.1            0.45         20     
-#>  contrasting 1   0.05           0.8          20     
+                    c1_grid = c(0, 1), n_rep = 5)
+#>  pattern     c1 rejection_hdmm rejection_pe n_valid n_empty
+#>  homogeneous 0  0              0            5       0      
+#>  homogeneous 1  0.6            1            5       0      
+#>  contrasting 0  0              0            5       0      
+#>  contrasting 1  0              0.4          5       0      
 #> 
-#> Outcome model: continuous
-# }
+#> Outcome: continuous
 ```

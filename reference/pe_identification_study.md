@@ -1,12 +1,12 @@
 # Monte Carlo study of individual-mediator identification (FWER / FDR)
 
 Evaluates how well the power-enhanced screen recovers the *individual*
-active mediators, the experiment reported in the manuscript's
-supplement. For each signal-strength scale \\c_1\\ on a grid it
-simulates many data sets, identifies the active set under each
-multiplicity method, and scores those selections against the known
-truth, returning the empirical family-wise error rate, false discovery
-rate, precision, and recall. This complements
+active mediators, the experiment reported in the article's supplement.
+For each signal-strength scale \\c_1\\ on a grid it simulates many data
+sets, identifies the active set under each multiplicity method, and
+scores those selections against the known truth, returning the empirical
+familywise error rate, false discovery rate, precision, and recall. This
+complements
 [`pe_power_curve()`](https://yelleknek.github.io/POEM/reference/pe_power_curve.md),
 which evaluates the *global* test rather than which mediators are
 flagged.
@@ -24,6 +24,9 @@ pe_identification_study(
   n_rep = 200,
   methods = c("Bonferroni", "BH", "BY"),
   error_level = 0.05,
+  truth = c("outcome_effect", "mediation"),
+  lambda_grid = NULL,
+  lambda_grid_reduced = NULL,
   outcome_args = list(),
   cores = 1L,
   seed = NULL,
@@ -51,7 +54,7 @@ pe_identification_study(
 - c1_grid:
 
   Numeric vector of signal-strength scales to sweep. Default
-  `seq(0, 1, by = 0.25)`. Include 0 to estimate the null family-wise
+  `seq(0, 1, by = 0.25)`. Include 0 to estimate the null familywise
   error rate.
 
 - c2:
@@ -61,11 +64,11 @@ pe_identification_study(
 - n_rep:
 
   Number of Monte Carlo replications per grid point. Default 200. The
-  manuscript uses 1000.
+  article uses 1000.
 
 - methods:
 
-  Multiplicity methods to evaluate, any of `"Bonferroni"` (family-wise
+  Multiplicity methods to evaluate, any of `"Bonferroni"` (familywise
   error rate), `"BH"`, and `"BY"` (false discovery rate). Default all
   three.
 
@@ -74,11 +77,27 @@ pe_identification_study(
   Target error rate for the mediator-screening step (the FWER level for
   Bonferroni, the FDR level for BH and BY). Default 0.05.
 
+- truth:
+
+  Which mediators count as truly active: `"outcome_effect"` (nonzero
+  outcome coefficient, the article's convention) or `"mediation"` (both
+  paths nonzero). See Details.
+
+- lambda_grid, lambda_grid_reduced:
+
+  Passed to
+  [`pe_mediation()`](https://yelleknek.github.io/POEM/reference/pe_mediation.md):
+  the tuning grids for the penalized fit. Default `NULL`, the family's
+  default grid (see
+  [`pe_lambda_grid()`](https://yelleknek.github.io/POEM/reference/pe_lambda_grid.md)).
+
 - outcome_args:
 
   A list of further arguments forwarded to
   [`simulate_mediation_data()`](https://yelleknek.github.io/POEM/reference/simulate_mediation_data.md)
-  (for example `rho`, `q`, `d`, `tau`, `alpha_m`). Default empty.
+  (for example `rho`, `q`, `d`, `tau`, `alpha_m`). Default empty. The
+  design arguments this function sets itself (`n`, `p`, `outcome`,
+  `pattern`, `c1`, `c2`) and `seed` may not appear here.
 
 - cores:
 
@@ -99,21 +118,42 @@ pe_identification_study(
 ## Value
 
 A tidy `data.frame` of class `poem_tbl` with one row per (\\c_1\\,
-method) combination and columns `c1`, `method`, `fwer` (empirical
-family-wise error rate, the proportion of replications with at least one
-false positive), `fdr` (mean false discovery proportion), `precision`,
-`recall`, and `n_valid` (replications that fit successfully). The
-simulation settings are recorded in attributes.
+method) combination and columns `c1`, `method`, `fwer`, `fdr`,
+`precision`, `recall` (as defined in Details), `n_valid` (replications
+whose fit succeeded), and `n_empty` (replications whose penalized fit
+selected no mediator). The settings are recorded in the attributes
+`outcome`, `pattern`, `n`, `p`, `n_rep`, `error_level`, `truth`, and
+`lambda_grid`.
 
 ## Details
 
-At \\c_1 = 0\\ the exposure-on-mediator paths are all zero, so there are
-no truly active mediators and any selection is a false positive; the
-family-wise error rate column is then the probability of selecting any
-mediator (the empirical FWER under the null). Recall is undefined when
-there are no active mediators (at \\c_1 = 0\\) and is reported as `NA`
-there; precision is `NA` for a replication that selects nothing and is
-averaged over the replications that select at least one mediator.
+The four metrics follow the article's supplement. In each replication
+the selected set is compared with the truth set; the familywise error
+rate is the proportion of replications selecting at least one mediator
+outside the truth set, the false discovery rate is the mean false
+discovery proportion (zero when nothing is selected), precision is the
+mean proportion of selected mediators that are true (scored zero when
+nothing is selected), and recall is the mean proportion of true
+mediators selected. Each is a Monte Carlo proportion with standard error
+about \\\sqrt{r(1 - r) / n\_{rep}}\\; the article uses 1000
+replications.
+
+What counts as a true mediator is set by `truth`. The article scores a
+mediator as active when its outcome coefficient \\\alpha\_{m,j}\\ is
+nonzero (`truth = "outcome_effect"`, the default), which is what its
+supplement tables use and what makes precision and recall defined at
+\\c_1 = 0\\, where the exposure-on-mediator paths are all zero; there
+the familywise error rate is the probability of selecting a mediator
+with no outcome effect. Under `truth = "mediation"` a mediator is active
+only when both paths are nonzero (the simulator's `active_mediators`),
+so at \\c_1 = 0\\ no mediator is active, any selection is a false
+positive, and recall is `NA`. For nonzero \\c_1\\ the two definitions
+agree under the article's designs, whose exposure-on-mediator loadings
+are all nonzero.
+
+The tuning grid governs these rates as much as the screen does (see
+[`pe_lambda_grid()`](https://yelleknek.github.io/POEM/reference/pe_lambda_grid.md));
+the default reproduces the article's settings.
 
 ## References
 
@@ -126,7 +166,8 @@ Association*.
 [`pe_power_curve()`](https://yelleknek.github.io/POEM/reference/pe_power_curve.md)
 for the global test,
 [`pe_selection()`](https://yelleknek.github.io/POEM/reference/pe_selection.md)
-for the per-method active set of a single fit.
+for the per-method active set of a single fit,
+[`pe_lambda_grid()`](https://yelleknek.github.io/POEM/reference/pe_lambda_grid.md).
 
 Other mediation simulation:
 [`guo_calibration`](https://yelleknek.github.io/POEM/reference/guo_calibration.md),
@@ -145,24 +186,21 @@ Xiufan Yu and Ken Kelley
 ## Examples
 
 ``` r
-# \donttest{
-# A small, fast study. Raise n, p, and n_rep toward the manuscript's
-# settings for a publication-scale study.
+# n_rep = 5 keeps this example fast; a rate from five replications has a
+# Monte Carlo standard error of up to 0.22, so read the shape, not the
+# numbers. A reported study uses the article's design (n = 300, p = 500)
+# and 1000 replications.
 set.seed(113)
-pe_identification_study(n = 150, p = 60, outcome = "continuous",
-                        pattern = "contrasting", c1_grid = c(0, 0.5, 1),
-                        n_rep = 20)
-#>  c1  method     fwer fdr     precision recall n_valid
-#>  0   Bonferroni 0.05 0.05    0         <NA>   20     
-#>  0   BH         0.05 0.05    0         <NA>   20     
-#>  0   BY         0.05 0.05    0         <NA>   20     
-#>  0.5 Bonferroni 0    0       1         0.1125 20     
-#>  0.5 BH         0    0       1         0.15   20     
-#>  0.5 BY         0    0       1         0.1    20     
-#>  1   Bonferroni 0    0       1         0.5125 20     
-#>  1   BH         0.15 0.03917 0.9565    0.5625 20     
-#>  1   BY         0    0       1         0.4875 20     
+pe_identification_study(n = 200, p = 60, outcome = "continuous",
+                        pattern = "contrasting", c1_grid = c(0, 1),
+                        n_rep = 5)
+#>  c1 method     fwer fdr precision recall n_valid n_empty
+#>  0  Bonferroni 0    0   0         0      5       0      
+#>  0  BH         0    0   0         0      5       0      
+#>  0  BY         0    0   0         0      5       0      
+#>  1  Bonferroni 0    0   0.8       0.2    5       0      
+#>  1  BH         0    0   0.8       0.3    5       0      
+#>  1  BY         0    0   0.8       0.25   5       0      
 #> 
-#> Outcome model: continuous
-# }
+#> Outcome: continuous
 ```

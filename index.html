@@ -11,9 +11,9 @@
 <script src="deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="POEM: Power Enhancement for High-Dimensional Mediation Analysis">
-<meta name="description" content="Powerful global tests for high-dimensional mediation analysis with heterogeneous and even contrasting mediation effects, for continuous, binary, and count outcomes, with identification of the active mediators under family-wise error rate or false discovery rate control. Implements Yu and Kelley (in press, Journal of the American Statistical Association).
+<meta name="description" content="Powerful global tests for high-dimensional mediation analysis with heterogeneous and even contrasting mediation effects, for continuous, binary, and count outcomes, with identification of the active mediators under familywise error rate or false discovery rate control. Implements Yu and Kelley (in press, Journal of the American Statistical Association).
 ">
-<meta property="og:description" content="Powerful global tests for high-dimensional mediation analysis with heterogeneous and even contrasting mediation effects, for continuous, binary, and count outcomes, with identification of the active mediators under family-wise error rate or false discovery rate control. Implements Yu and Kelley (in press, Journal of the American Statistical Association).
+<meta property="og:description" content="Powerful global tests for high-dimensional mediation analysis with heterogeneous and even contrasting mediation effects, for continuous, binary, and count outcomes, with identification of the active mediators under familywise error rate or false discovery rate control. Implements Yu and Kelley (in press, Journal of the American Statistical Association).
 ">
 <meta property="og:image" content="https://yelleknek.github.io/POEM/logo.svg">
 </head>
@@ -59,14 +59,19 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header">
-<img src="logo.svg" class="logo" alt=""><h1 id="poem-power-enhancement-of-high-dimensional-mediation-">POEM: Power Enhancement of High-Dimensional Mediation <a class="anchor" aria-label="anchor" href="#poem-power-enhancement-of-high-dimensional-mediation-"></a>
+<img src="logo.svg" class="logo" alt=""><h1 id="poem-power-enhancement-for-high-dimensional-mediation-analysis-">POEM: Power Enhancement for High-Dimensional Mediation Analysis <a class="anchor" aria-label="anchor" href="#poem-power-enhancement-for-high-dimensional-mediation-analysis-"></a>
 </h1>
 </div>
-<p>POEM implements powerful global tests for high-dimensional mediation analysis, for continuous, binary, and count outcomes. It answers the question <em>“is there any active mediator among a large set of candidate mediators?”</em> and, when the answer is yes, identifies which individual mediators are active. The name encodes the method: <strong>PO</strong>wer <strong>E</strong>nhancement of [high-dimensional] <strong>M</strong>ediation.</p>
+<p>POEM implements powerful global tests for high-dimensional mediation analysis, for continuous, binary, and count outcomes. It answers the question <em>“is there any active mediator among a large set of candidate mediators?”</em> and, when the answer is yes, identifies which individual mediators are active. The name comes from POwer-Enhanced Mediation.</p>
 <div class="section level2">
 <h2 id="why-power-enhancement">Why power enhancement<a class="anchor" aria-label="anchor" href="#why-power-enhancement"></a>
 </h2>
 <p>The conventional high-dimensional mediation test targets the <strong>total indirect effect</strong> <code>beta = Gamma_x' alpha_m</code>, the sum of every mediator’s individual indirect effect. When some indirect effects are positive and others negative they can cancel, making <code>beta = 0</code> even though active mediators exist, and a test built on <code>beta</code> is then powerless. The power-enhanced (PE) test adds a component <code>J_m</code> that accumulates the marginal signal from each individual mediator. Because <code>J_m</code> sums magnitudes, opposite-signed effects reinforce rather than cancel, so the test stays powerful under heterogeneous and contrasting mediation while preserving the Type I error rate of the benchmark test under the global null.</p>
+</div>
+<div class="section level2">
+<h2 id="when-to-use-poem">When to use POEM<a class="anchor" aria-label="anchor" href="#when-to-use-poem"></a>
+</h2>
+<p>POEM answers the global question, <em>“is there any active mediator among many candidates?”</em>, and then names the active ones. Reach for it when the candidate mediators number in the dozens or more (<code>p</code> may exceed <code>n</code>), the outcome is continuous, binary, or a count, and the individual mediation effects may differ in sign. For a single mediator, or a few mediators fit as one structural model (indirect effects with confidence intervals, likelihood ratio tests of arbitrary indirect effects, moderated mediation), use <a href="https://CRAN.R-project.org/package=DMAR" class="external-link">DMAR</a> instead. Among high-dimensional global tests, POEM implements the power-enhanced tests of Yu and Kelley (in press) and the HDMM benchmark they extend; HILMA, GlobalTest, HDMT, and DACT are separate methods in their own packages, and the vignette <code>poem-vs-competitors</code> shows how to run them beside a POEM fit. The guided-tour vignette and <code><a href="reference/pe_mediation.html">?pe_mediation</a></code> state the method’s practical limits (small <code>n</code>, strongly correlated mediators, rare binary outcomes, overdispersed counts, missing data).</p>
 </div>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -95,34 +100,34 @@
 <span><span class="co"># One call reports the benchmark Wald test and the power-enhanced test</span></span>
 <span><span class="co"># side by side, and names the active mediators it found.</span></span>
 <span><span class="fu"><a href="reference/pe_mediation.html">pe_mediation</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">X</span>, <span class="va">d</span><span class="op">$</span><span class="va">Y</span>, <span class="va">d</span><span class="op">$</span><span class="va">M</span>, outcome <span class="op">=</span> <span class="st">"continuous"</span><span class="op">)</span></span></code></pre></div>
-<p>The benchmark test (<code>pval_hdmm</code>) does not reject the (zero) total indirect effect; the power-enhanced test (<code>pval_pe</code>) rejects decisively and identifies the active mediators.</p>
+<p>The benchmark test (<code>pval_hdmm</code>) does not reject the (zero) total indirect effect; the power-enhanced test (<code>pval_pe</code>) rejects decisively and identifies an active mediator. The footer also reports the tuning parameter the high-dimensional BIC chose and the grid it was chosen from.</p>
 </div>
 <div class="section level2">
-<h2 id="reproducing-the-manuscript">Reproducing the manuscript<a class="anchor" aria-label="anchor" href="#reproducing-the-manuscript"></a>
+<h2 id="reproducing-the-article">Reproducing the article<a class="anchor" aria-label="anchor" href="#reproducing-the-article"></a>
 </h2>
-<p>All data needed to reproduce the paper ship with the package; nothing is downloaded at run time. The vignette <strong><code>reproducing-the-manuscript</code></strong> walks through every analysis section by section; the table below maps each manuscript result to the function that reproduces it.</p>
+<p>All data needed to reproduce the paper ship with the package; nothing is downloaded at run time. The vignette <strong><code>reproducing-the-article</code></strong> walks through every analysis section by section; the table below maps each article result to the function that reproduces it.</p>
 <table class="table">
 <colgroup>
 <col width="50%">
 <col width="50%">
 </colgroup>
 <thead><tr>
-<th>Manuscript result</th>
+<th>Article result</th>
 <th>Reproduce with</th>
 </tr></thead>
 <tbody>
 <tr>
-<td>Section 5.1 linear-model size/power figures</td>
+<td>Section 4.1 linear-model size/power figures</td>
 <td><code>pe_power_curve(outcome = "continuous", pattern = "homogeneous" / "contrasting")</code></td>
 </tr>
 <tr>
-<td>Section 5.2 logistic / Poisson figures</td>
+<td>Section 4.2 logistic / Poisson figures</td>
 <td>
 <code>pe_power_curve(outcome = "binary", c2 = 1)</code> and <code>pe_power_curve(outcome = "count", c2 = 0.4)</code>
 </td>
 </tr>
 <tr>
-<td>Supplement: FWER/FDR mediator-identification study</td>
+<td>Supplement Section S.4.1: FWER/FDR mediator-identification study</td>
 <td><code><a href="reference/pe_identification_study.html">pe_identification_study()</a></code></td>
 </tr>
 <tr>
@@ -131,7 +136,7 @@
 <code><a href="reference/simulate_guo_mediation.html">simulate_guo_mediation()</a></code> with the shipped <code>guo_calibration</code> constants</td>
 </tr>
 <tr>
-<td>Section 6 real-data tables (IMR, U5MR, LEB, LBW, PoU)</td>
+<td>Section 5 real-data tables (IMR, U5MR, LEB, LBW, PoU)</td>
 <td>
 <code>WHO_mediation_analysis("imr")</code>, <code>"u5mr"</code>, <code>"leb"</code>, <code>"lbw"</code>, <code>"pou"</code>
 </td>
@@ -147,9 +152,9 @@
 </tr>
 </tbody>
 </table>
-<p>The Monte Carlo figures use the manuscript’s <code>n = 300</code>, <code>p = 500</code>, and 1,000 replications; the vignette runs reduced versions for speed and gives the exact manuscript settings in <code>eval = FALSE</code> blocks. Set <code>cores &gt; 1</code> to parallelize (near-linear). The real-data tables are deterministic and are checked against the published values by the package’s test suite (<code>tests/testthat/test-benchmark.R</code>).</p>
+<p>The Monte Carlo figures use the article’s <code>n = 300</code>, <code>p = 500</code>, and 1,000 replications; the vignette runs reduced versions for speed and gives the exact article settings in <code>eval = FALSE</code> blocks. Set <code>cores &gt; 1</code> to parallelize (near-linear). The real-data tables are deterministic and are checked against the published values by the package’s test suite (<code>tests/testthat/test-benchmark.R</code>).</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Reproduce the manuscript's global infant-mortality table (Table 2).</span></span>
+<code class="sourceCode R"><span><span class="co"># Reproduce the article's infant-mortality table (Table 1).</span></span>
 <span><span class="fu"><a href="reference/WHO_mediation_analysis.html">WHO_mediation_analysis</a></span><span class="op">(</span><span class="st">"imr"</span>, groupings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"global"</span>, <span class="st">"region"</span>, <span class="st">"income"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -161,7 +166,7 @@
 <li>
 <strong><code>POEM</code></strong>: a guided tour of the method and the package.</li>
 <li>
-<strong><code>reproducing-the-manuscript</code></strong>: section-by-section reproduction.</li>
+<strong><code>reproducing-the-article</code></strong>: section-by-section reproduction.</li>
 <li>
 <strong><code>poem-vs-competitors</code></strong>: a head-to-head against the benchmark test.</li>
 </ul>
@@ -201,7 +206,7 @@
 </tr>
 <tr>
 <td>
-<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> / <code>tidy()</code> / <code>glance()</code> / <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
+<code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> / <code><a href="reference/poem_broom.html">tidy()</a></code> / <code><a href="reference/poem_broom.html">glance()</a></code> / <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code>
 </td>
 <td>Plot, broom verbs, and a cross-group comparison digest</td>
 </tr>
@@ -244,7 +249,7 @@
 </h2>
 <ul>
 <li>
-<code>WHO_health_mediation</code>: the empirical panel analyzed in the manuscript: 91 World Health Organization member states over 2000–2021, with GDP per capita growth as the exposure, 57 WHO Global Health Expenditure Database indicators as candidate mediators, and five World Bank health outcomes (infant and under-five mortality, life expectancy, low birthweight, undernourishment).</li>
+<code>WHO_health_mediation</code>: the empirical panel analyzed in the article: 91 World Health Organization member states over 2000–2021, with GDP per capita growth as the exposure, 57 WHO Global Health Expenditure Database indicators as candidate mediators, and five World Bank health outcomes (infant and under-five mortality, life expectancy, low birthweight, undernourishment).</li>
 <li>
 <code>WHO_indicator_codebook</code>: definitions of the 57 indicators.</li>
 <li>

@@ -58,7 +58,7 @@ fixed number of decimal places with a &amp;#8220;&amp;lt; 0.0001&amp;#8221; floo
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Tidy printing for POEM result tables</h1>
-      <small class="dont-index">Source: <a href="https://github.com/yelleKneK/POEM/blob/v1.0.0/R/poem_tbl.R" class="external-link"><code>R/poem_tbl.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/yelleKneK/POEM/blob/main/R/poem_tbl.R" class="external-link"><code>R/poem_tbl.R</code></a></small>
       <div class="d-none name"><code>poem_tbl.Rd</code></div>
     </div>
 
@@ -97,13 +97,15 @@ by a POEM function).</p></dd>
 
 
 <dt id="arg-digits">digits<a class="anchor" aria-label="anchor" href="#arg-digits"></a></dt>
-<dd><p>Number of significant figures for non-integer values.
-Defaults to <code>getOption("poem.digits", 4L)</code>.</p></dd>
+<dd><p>Number of significant figures for non-integer values, a
+single positive whole number. Defaults to
+<code>getOption("poem.digits", 4L)</code>.</p></dd>
 
 
 <dt id="arg-digits-p">digits_p<a class="anchor" aria-label="anchor" href="#arg-digits-p"></a></dt>
-<dd><p>Number of decimal places for p-values. Defaults to 4.
-A p-value below <code>10^(-digits_p)</code> prints as “&lt; 0.0001”.</p></dd>
+<dd><p>Number of decimal places for p-values, a single positive
+whole number. Defaults to 4. A p-value below <code>10^(-digits_p)</code>
+prints as “&lt; 0.0001”.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -135,28 +137,29 @@ house style <span class="pkg">POEM</span> follows.</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">113</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_mediation_data.html">simulate_mediation_data</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">120</span>, p <span class="op">=</span> <span class="fl">60</span>, pattern <span class="op">=</span> <span class="st">"contrasting"</span>,</span></span>
+<span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_mediation_data.html">simulate_mediation_data</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">200</span>, p <span class="op">=</span> <span class="fl">60</span>, pattern <span class="op">=</span> <span class="st">"contrasting"</span>,</span></span>
 <span class="r-in"><span>                             outcome <span class="op">=</span> <span class="st">"continuous"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">&lt;-</span> <span class="fu"><a href="pe_mediation.html">pe_mediation</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">X</span>, <span class="va">d</span><span class="op">$</span><span class="va">Y</span>, <span class="va">d</span><span class="op">$</span><span class="va">M</span>, outcome <span class="op">=</span> <span class="st">"continuous"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">fit</span>                       <span class="co"># rounded for reading</span></span></span>
+<span class="r-in"><span><span class="va">fit</span>                       <span class="co"># rounded for reading, with the p-value floor</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  term                  value   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  stat_hdmm             0.7963  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  pval_hdmm             0.3722  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  stat_pe               628.8   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  j_pe                  628     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  stat_hdmm             0.03881 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  pval_hdmm             0.8438  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  stat_pe               174.2   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  j_pe                  174.1   </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  pval_pe               &lt; 0.0001</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_effect 0.07462 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_lower  -0.08927</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_upper  0.2385  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  n_active_mediators    3       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_effect 0.01054 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_lower  -0.0943 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_upper  0.1154  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  n_active_mediators    1       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  df                    1       </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  n_candidate_mediators 60      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  n_observations        120     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  n_observations        200     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Outcome model: continuous (linear)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Active mediators identified (3): 2, 3, 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Active mediators identified (1): 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Tuning parameter (HBIC): lambda = 0.199 from 20 values in [0.199, 0.388] (the grid's lower end)</span>
 <span class="r-in"><span><span class="va">fit</span><span class="op">$</span><span class="va">value</span><span class="op">[</span><span class="va">fit</span><span class="op">$</span><span class="va">term</span> <span class="op">==</span> <span class="st">"pval_pe"</span><span class="op">]</span>   <span class="co"># full precision underneath</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 9.180277e-139</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 9.154634e-40</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

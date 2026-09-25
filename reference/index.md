@@ -14,6 +14,8 @@ The power-enhanced global test and its outcome-specific workers.
   : Power-enhanced mediation test for a binary outcome
 - [`pe_mediation_poisson()`](https://yelleknek.github.io/POEM/reference/pe_mediation_poisson.md)
   : Power-enhanced mediation test for a count outcome
+- [`pe_lambda_grid()`](https://yelleknek.github.io/POEM/reference/pe_lambda_grid.md)
+  : Default tuning-parameter grid for the penalized mediator fit
 
 ## Identifying the active mediators
 
@@ -48,7 +50,7 @@ Size, power, identification, and sample size planning by simulation.
 ## The WHO health-expenditure analysis
 
 - [`WHO_mediation_analysis()`](https://yelleknek.github.io/POEM/reference/WHO_mediation_analysis.md)
-  : Reproduce the manuscript's empirical mediation analysis
+  : Reproduce the article's empirical mediation analysis
 - [`WHO_mediation_design()`](https://yelleknek.github.io/POEM/reference/WHO_mediation_design.md)
   : Build a mediation design from the WHO health-expenditure data
 
@@ -61,8 +63,8 @@ Size, power, identification, and sample size planning by simulation.
   : Summarize a POEM table
 - [`plot(`*`<poem_tbl>`*`)`](https://yelleknek.github.io/POEM/reference/plot.poem_tbl.md)
   : Plot a POEM result
-- [`tidy(`*`<poem_tbl>`*`)`](https://yelleknek.github.io/POEM/reference/poem_broom.md)
-  [`glance(`*`<poem_tbl>`*`)`](https://yelleknek.github.io/POEM/reference/poem_broom.md)
+- [`tidy()`](https://yelleknek.github.io/POEM/reference/poem_broom.md)
+  [`glance()`](https://yelleknek.github.io/POEM/reference/poem_broom.md)
   : Broom verbs for POEM results
 
 ## Data sets
@@ -85,4 +87,4 @@ Size, power, identification, and sample size planning by simulation.
 
 - [`POEM`](https://yelleknek.github.io/POEM/reference/POEM-package.md)
   [`POEM-package`](https://yelleknek.github.io/POEM/reference/POEM-package.md)
-  : POEM: Power Enhancement for Mediation in R
+  : Power Enhancement for High-Dimensional Mediation Analysis (POEM)

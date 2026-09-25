@@ -32,13 +32,13 @@ print(x, digits = getOption("poem.digits", 4L), digits_p = 4L, ...)
 
 - digits:
 
-  Number of significant figures for non-integer values. Defaults to
-  `getOption("poem.digits", 4L)`.
+  Number of significant figures for non-integer values, a single
+  positive whole number. Defaults to `getOption("poem.digits", 4L)`.
 
 - digits_p:
 
-  Number of decimal places for p-values. Defaults to 4. A p-value below
-  `10^(-digits_p)` prints as “\< 0.0001”.
+  Number of decimal places for p-values, a single positive whole number.
+  Defaults to 4. A p-value below `10^(-digits_p)` prints as “\< 0.0001”.
 
 - ...:
 
@@ -69,26 +69,27 @@ Xiufan Yu and Ken Kelley
 
 ``` r
 set.seed(113)
-d <- simulate_mediation_data(n = 120, p = 60, pattern = "contrasting",
+d <- simulate_mediation_data(n = 200, p = 60, pattern = "contrasting",
                              outcome = "continuous")
 fit <- pe_mediation(d$X, d$Y, d$M, outcome = "continuous")
-fit                       # rounded for reading
+fit                       # rounded for reading, with the p-value floor
 #>  term                  value   
-#>  stat_hdmm             0.7963  
-#>  pval_hdmm             0.3722  
-#>  stat_pe               628.8   
-#>  j_pe                  628     
+#>  stat_hdmm             0.03881 
+#>  pval_hdmm             0.8438  
+#>  stat_pe               174.2   
+#>  j_pe                  174.1   
 #>  pval_pe               < 0.0001
-#>  total_indirect_effect 0.07462 
-#>  total_indirect_lower  -0.08927
-#>  total_indirect_upper  0.2385  
-#>  n_active_mediators    3       
+#>  total_indirect_effect 0.01054 
+#>  total_indirect_lower  -0.0943 
+#>  total_indirect_upper  0.1154  
+#>  n_active_mediators    1       
 #>  df                    1       
 #>  n_candidate_mediators 60      
-#>  n_observations        120     
+#>  n_observations        200     
 #> 
 #> Outcome model: continuous (linear)
-#> Active mediators identified (3): 2, 3, 4
+#> Active mediators identified (1): 2
+#> Tuning parameter (HBIC): lambda = 0.199 from 20 values in [0.199, 0.388] (the grid's lower end)
 fit$value[fit$term == "pval_pe"]   # full precision underneath
-#> [1] 9.180277e-139
+#> [1] 9.154634e-40
 ```

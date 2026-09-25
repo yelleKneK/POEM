@@ -7,7 +7,7 @@
 
 ### The article and the benchmark
 
-- [Reproducing the Manuscript's Analyses with
-  POEM](https://yelleknek.github.io/POEM/articles/reproducing-the-manuscript.md):
+- [Reproducing the Article's Analyses With
+  POEM](https://yelleknek.github.io/POEM/articles/reproducing-the-article.md):
 - [POEM and the Competition: A
   Head-to-Head](https://yelleknek.github.io/POEM/articles/poem-vs-competitors.md):

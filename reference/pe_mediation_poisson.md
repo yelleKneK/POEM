@@ -20,8 +20,8 @@ pe_mediation_poisson(
   conf_level = 0.95,
   report_all_methods = FALSE,
   drop_constant = FALSE,
-  lambda_grid = seq(0.05, 1, length.out = 20),
-  lambda_grid_reduced = lambda_grid
+  lambda_grid = NULL,
+  lambda_grid_reduced = NULL
 )
 ```
 
@@ -41,7 +41,9 @@ pe_mediation_poisson(
 - M:
 
   Numeric matrix of candidate mediators with \\n\\ rows and \\p\\
-  columns; \\p\\ may exceed \\n\\.
+  columns; \\p\\ may exceed \\n\\. Column names, when present, label the
+  active mediators in the print footer and the mediator table; without
+  them mediators are reported by column position.
 
 - Z:
 
@@ -51,7 +53,7 @@ pe_mediation_poisson(
 - method:
 
   Multiplicity adjustment used to screen individual mediators in the PE
-  component: `"Bonferroni"` (family-wise error rate control, the
+  component: `"Bonferroni"` (familywise error rate control, the
   default), `"BH"`, or `"BY"` (false discovery rate control; `"BH"`
   assumes independence or positive dependence among mediators, `"BY"` is
   valid under arbitrary dependence).
@@ -65,7 +67,7 @@ pe_mediation_poisson(
 - error_level:
 
   Target error rate for the mediator-screening step, in \\(0, 1)\\.
-  Interpreted as the family-wise error rate when `method = "Bonferroni"`
+  Interpreted as the familywise error rate when `method = "Bonferroni"`
   and as the false discovery rate when `method = "BH"` or `"BY"`.
   Default 0.05. This is distinct from the significance level used to
   test the global null (which is the user's choice when reading
@@ -98,13 +100,29 @@ pe_mediation_poisson(
 - lambda_grid:
 
   Numeric vector of candidate SCAD tuning parameters for the penalized
-  fit; the value minimizing the high-dimensional BIC is chosen. Default
-  `seq(0.05, 1, length.out = 20)`.
+  mediator fit; the fit is repeated at each value and the one minimizing
+  the high-dimensional BIC (HBIC) is kept. Default `NULL` uses, for a
+  continuous outcome,
+  [`pe_lambda_grid()`](https://yelleknek.github.io/POEM/reference/pe_lambda_grid.md):
+  the grid the article's simulations used at their design, rescaled to
+  this `n` and `p` by the rate \\\sqrt{\log p / n}\\ the theory requires
+  of the tuning parameter; for a binary or count outcome it uses the
+  review-era grid `seq(0.05, 1, length.out = 20)`. The grid's lower end
+  matters most, because the HBIC minimum often sits there and because it
+  decides whether the identified set keeps its error-rate guarantee; see
+  [`pe_lambda_grid()`](https://yelleknek.github.io/POEM/reference/pe_lambda_grid.md)
+  for the trade-off with power, measured. The value chosen is reported
+  in the `"tuning"` attribute and the print footer.
 
 - lambda_grid_reduced:
 
   Numeric vector of candidate tuning parameters for the reduced-model
-  fit (continuous outcome only). Defaults to `lambda_grid`.
+  fit that the continuous-outcome Wald test refits (unused for binary
+  and count outcomes). Default `NULL` uses
+  [`pe_lambda_grid()`](https://yelleknek.github.io/POEM/reference/pe_lambda_grid.md)
+  with `model = "reduced"` when `lambda_grid` is also `NULL` (the
+  article's reduced-model grid, rescaled), and otherwise `lambda_grid`
+  itself.
 
 ## Value
 
@@ -125,9 +143,10 @@ linear approximation step. The total indirect effect \\\beta = \Gamma_x
 
 ## References
 
-Guo, X., Li, R., Liu, J., Zeng, M., and Wang, H. (2024). Statistical
-inference for high-dimensional generalized mediation analysis. (Working
-paper.)
+Guo, X., Li, R., Liu, J., and Zeng, M. (2024). Estimations and tests for
+generalized mediation models with high-dimensional potential mediators.
+*Journal of Business & Economic Statistics, 42*(1), 243–256.
+[doi:10.1080/07350015.2023.2174548](https://doi.org/10.1080/07350015.2023.2174548)
 
 ## See also
 
@@ -136,6 +155,7 @@ paper.)
 [`pe_mediation_logistic()`](https://yelleknek.github.io/POEM/reference/pe_mediation_logistic.md).
 
 Other mediation tests:
+[`pe_lambda_grid()`](https://yelleknek.github.io/POEM/reference/pe_lambda_grid.md),
 [`pe_mediate()`](https://yelleknek.github.io/POEM/reference/pe_mediate.md),
 [`pe_mediation()`](https://yelleknek.github.io/POEM/reference/pe_mediation.md),
 [`pe_mediation_linear()`](https://yelleknek.github.io/POEM/reference/pe_mediation_linear.md),
@@ -171,4 +191,5 @@ pe_mediation_poisson(d$X, d$Y, d$M)
 #> 
 #> Outcome model: count (Poisson)
 #> Active mediators identified (2): 4, 5
+#> Tuning parameter (HBIC): lambda = 0.2 from 20 values in [0.05, 1]
 ```

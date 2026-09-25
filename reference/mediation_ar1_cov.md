@@ -2,7 +2,7 @@
 
 Builds the \\p \times p\\ first-order autoregressive covariance matrix
 \\\Sigma = (\rho^{\|i-j\|})\_{i,j}\\, the intercorrelation structure
-imposed on the mediator noise throughout the manuscript's Monte Carlo
+imposed on the mediator noise throughout the article's Monte Carlo
 studies. It is exported as a small reusable utility so a user can
 inspect or reuse the exact covariance the simulations use.
 
@@ -23,7 +23,7 @@ mediation_ar1_cov(p, rho = 0.5)
   Autocorrelation parameter in \\(-1, 1)\\. The covariance between
   mediators \\i\\ and \\j\\ is \\\rho^{\|i-j\|}\\, so nearby mediators
   are more strongly correlated and the correlation decays geometrically
-  with separation. Default 0.5, the value used in the manuscript.
+  with separation. Default 0.5, the value used in the article.
 
 ## Value
 

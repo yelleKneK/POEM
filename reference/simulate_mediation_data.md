@@ -1,12 +1,12 @@
 # Simulate high-dimensional mediation data
 
-Generates a data set from the mediation models studied in the
-manuscript, for a continuous, binary, or count outcome, under the
-homogeneous or contrasting (heterogeneous) mediation patterns. The
-mediators carry an AR(1) correlation structure, a handful are truly
-active, and the rest are null, so the data exercise exactly the
-situation the power-enhanced tests are designed for. This is the
-generator behind the package's example data sets and behind
+Generates a data set from the mediation models studied in the article,
+for a continuous, binary, or count outcome, under the homogeneous or
+contrasting (heterogeneous) mediation patterns. The mediators carry an
+AR(1) correlation structure, a handful are truly active, and the rest
+are null, so the data exercise exactly the situation the power-enhanced
+tests are designed for. This is the generator behind the package's
+example data sets and behind
 [`pe_power_curve()`](https://yelleknek.github.io/POEM/reference/pe_power_curve.md).
 
 ## Usage
@@ -137,7 +137,7 @@ c_2\\:
 
 - count: \\Y \sim \mathrm{Poisson}(\exp(\eta))\\, with the log-mean
   \\\eta\\ clamped to \\\[-5, 5\]\\ to guard against overflow, as in the
-  manuscript.
+  article.
 
 ## See also
 

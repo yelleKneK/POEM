@@ -4,7 +4,7 @@ The 57 health-expenditure indicators that serve as candidate mediators
 in
 [WHO_health_mediation](https://yelleknek.github.io/POEM/reference/WHO_health_mediation.md),
 with their short codes and full descriptions, transcribed from the
-manuscript's supplementary codebook. Many indicators are alternative
+article's supplementary codebook. Many indicators are alternative
 normalizations of the same underlying spending (per capita, percent of
 GDP, percent of current health expenditure, current versus constant 2021
 currency, national currency versus US dollars versus purchasing power
@@ -70,7 +70,7 @@ head(WHO_indicator_codebook)
 #> 4               Domestic General Government Health Expenditure (GGHE-D)
 #> 5                           Domestic Private Health Expenditure (PVT-D)
 #> 6                                     External Health Expenditure (EXT)
-# Look up a mediator flagged in the manuscript's analysis.
+# Look up a mediator flagged in the article's analysis.
 WHO_indicator_codebook[WHO_indicator_codebook$indicator == "gge_gdp", ]
 #>    indicator                                      description
 #> 26   gge_gdp General Government Expenditure (GGE) as % of GDP

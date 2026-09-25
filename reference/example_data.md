@@ -72,19 +72,20 @@ fit <- pe_mediation(example_continuous$X, example_continuous$Y,
                     outcome = "continuous")
 fit
 #>  term                  value   
-#>  stat_hdmm             4.653   
-#>  pval_hdmm             0.0310  
-#>  stat_pe               457.8   
-#>  j_pe                  453.1   
+#>  stat_hdmm             3.289   
+#>  pval_hdmm             0.0698  
+#>  stat_pe               327     
+#>  j_pe                  323.7   
 #>  pval_pe               < 0.0001
-#>  total_indirect_effect 0.3022  
-#>  total_indirect_lower  0.02762 
-#>  total_indirect_upper  0.5768  
-#>  n_active_mediators    2       
+#>  total_indirect_effect 0.2513  
+#>  total_indirect_lower  -0.0203 
+#>  total_indirect_upper  0.5229  
+#>  n_active_mediators    1       
 #>  df                    1       
 #>  n_candidate_mediators 100     
 #>  n_observations        200     
 #> 
 #> Outcome model: continuous (linear)
-#> Active mediators identified (2): 4, 5
+#> Active mediators identified (1): 4
+#> Tuning parameter (HBIC): lambda = 0.211 from 20 values in [0.211, 0.411] (the grid's lower end)
 ```

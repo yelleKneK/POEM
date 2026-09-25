@@ -1,14 +1,14 @@
 # Build a mediation design from the WHO health-expenditure data
 
 Assembles the exposure, outcome, mediator, and confounder matrices for
-one of the analyses in the manuscript from
+one of the analyses in the article from
 [WHO_health_mediation](https://yelleknek.github.io/POEM/reference/WHO_health_mediation.md),
 ready to pass to
 [`pe_mediation()`](https://yelleknek.github.io/POEM/reference/pe_mediation.md).
 The exposure is GDP per capita growth, the mediators are the 57
 health-expenditure indicators, and the outcome is the chosen health
 indicator. Optionally restrict to a WHO region and/or a World Bank
-income group, reproducing the manuscript's region-specific,
+income group, reproducing the article's region-specific,
 income-specific, and region-by-income models.
 
 ## Usage
@@ -67,9 +67,9 @@ but only for covariates that still vary after subsetting: a
 region-specific model drops the (now constant) region, and unused factor
 levels are dropped so no all-zero indicator columns remain.
 
-To reproduce the manuscript's exact test statistics, fit with the
-article's preprocessing, standardizing the exposure and mediators and
-centering the outcome while leaving the confounder indicators unscaled:
+To reproduce the article's exact test statistics, fit with the article's
+preprocessing, standardizing the exposure and mediators and centering
+the outcome while leaving the confounder indicators unscaled:
 
 
       des <- WHO_mediation_design("imr")
@@ -79,9 +79,14 @@ centering the outcome while leaving the confounder indicators unscaled:
 
 The simpler call
 `pe_mediation(des$X, des$Y, des$M, des$Z, outcome = "continuous")`
-(which standardizes every block, including \\Z\\) identifies the same
-active mediators; only the benchmark Wald p-value shifts, because
-scaling the indicator columns changes that test.
+standardizes every block, including \\Z\\, and so fits a different
+model: scaling the indicator columns changes both the benchmark Wald
+test and the penalized selection, so its p-values and its active set
+need not match the article's (on the default tuning grid the global IMR
+active set happens to agree; on the article's 100-point grid it does
+not).
+[`WHO_mediation_analysis()`](https://yelleknek.github.io/POEM/reference/WHO_mediation_analysis.md)
+applies the article's preprocessing for you.
 
 ## See also
 
@@ -125,7 +130,8 @@ fit
 #>  n_observations        2002    
 #> 
 #> Outcome model: continuous (linear)
-#> Active mediators identified (1): 26
+#> Active mediators identified (1): gge_gdp
+#> Tuning parameter (HBIC): lambda = 0.1 from 100 values in [0.1, 5] (the grid's lower end)
 # The active mediator's full name:
 WHO_indicator_codebook$description[
   match(des$indicators[attr(fit, "active_mediators")],

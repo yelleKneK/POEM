@@ -28,7 +28,12 @@ A tidy `data.frame` (class `poem_tbl`) with columns:
 
 - mediator:
 
-  Column index of the mediator in the original `M`.
+  Column position of the mediator in the original `M`.
+
+- name:
+
+  The mediator's column name in `M`; present only when `M` has column
+  names.
 
 - t_outcome:
 
@@ -58,6 +63,7 @@ The table is empty when the fit selected no candidate mediators.
 [`pe_selection()`](https://yelleknek.github.io/POEM/reference/pe_selection.md).
 
 Other mediation tests:
+[`pe_lambda_grid()`](https://yelleknek.github.io/POEM/reference/pe_lambda_grid.md),
 [`pe_mediate()`](https://yelleknek.github.io/POEM/reference/pe_mediate.md),
 [`pe_mediation()`](https://yelleknek.github.io/POEM/reference/pe_mediation.md),
 [`pe_mediation_linear()`](https://yelleknek.github.io/POEM/reference/pe_mediation_linear.md),
@@ -78,10 +84,7 @@ d <- simulate_mediation_data(n = 200, p = 60, outcome = "continuous",
                              pattern = "contrasting", c1 = 1)
 fit <- pe_mediation(d$X, d$Y, d$M, outcome = "continuous")
 pe_mediators(fit)
-#>  mediator t_outcome t_exposure screen_p  selected
-#>  1        21.75     0.3641     0.7158    FALSE   
-#>  2        -10.21    3.131      0.001741   TRUE   
-#>  3        8.602     4.349      1.365e-05  TRUE   
-#>  4        -6.82     6.185      6.227e-10  TRUE   
-#>  33       -2.378    -13.08     0.01741   FALSE   
+#>  mediator t_outcome t_exposure screen_p selected
+#>  1        18.22     0.3641     0.7158   FALSE   
+#>  2        -7.179    3.131      0.0017    TRUE   
 ```

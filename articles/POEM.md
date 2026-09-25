@@ -5,8 +5,8 @@ but new to high-dimensional mediation. It explains the problem the
 package solves, builds up the idea behind the power-enhanced tests, then
 walks through a first analysis, the output, the different outcome types,
 a simulation study, and finally the real data application from the
-manuscript. You do not need to have read the manuscript first; pointers
-to it appear where the details live.
+article. You do not need to have read the article first; pointers to it
+appear where the details live.
 
 ## 1. What is a mediation analysis?
 
@@ -67,35 +67,31 @@ existing high-dimensional mediation tests.
 The power-enhanced (PE) test fixes the blind spot by adding a second
 piece that cannot cancel. After a penalized fit selects a small set of
 candidate-active mediators, the PE component `J_m` adds up, over those
-mediators, the **magnitude** of each one’s combined path signal:
+mediators, the **magnitude** of each one’s combined path signal. In code
+notation, with `alpha_hat[j]` the estimated `M -> Y` coefficient of
+mediator `j`, `Gamma_hat[i, j]` the estimated `X -> M` coefficient from
+exposure `i`, and `se_*` their standard errors:
 
-``` math
-J_m = \sqrt{p} \sum_{i=1}^{q} \sum_{j \in \hat S}
-  \left| \frac{\hat\alpha_{m,j}}{\hat\sigma_{m,j}} \right|
-  \left| \frac{\hat\Gamma_{x,i,j}}{\hat\sigma_{\Gamma,i,j}} \right|
-  \mathbf{1}\!\left\{ \text{both paths significant} \right\}.
-```
+    J_m = sqrt(p) * sum over exposures i and selected mediators j of
+          |alpha_hat[j] / se_alpha[j]| * |Gamma_hat[i, j] / se_Gamma[i, j]|
+          * 1{both paths individually significant}
 
 Two things matter here. First, the indicator keeps a mediator only when
 **both** its `X -> M` path and its `M -> Y` path are individually
 significant, so noise mediators do not contribute. Second, because `J_m`
 sums **absolute values**, a `+0.5` mediator and a `-0.5` mediator
 *reinforce* each other instead of cancelling. The full test statistic is
-
-``` math
-M_{PE} = S_n + J_m,
-```
-
-the benchmark Wald statistic `S_n` (the total-indirect-effect test) plus
-the enhancement. Under the global null of no mediation, the screen
-rejects every mediator, so `J_m = 0` and `M_PE` behaves exactly like
-`S_n` (same chi-square reference distribution, so the same Type I error
-rate). Under heterogeneous alternatives, `J_m` grows large and the test
-gains power. That is the whole idea: **keep the size, add power exactly
-where the old test was blind.**
+`M_PE = S_n + J_m`, the benchmark Wald statistic `S_n` (the
+total-indirect-effect test) plus the enhancement. Under the global null
+of no mediation, the screen rejects every mediator, so `J_m = 0` and
+`M_PE` behaves exactly like `S_n` (same chi-square reference
+distribution, so the same Type I error rate). Under heterogeneous
+alternatives, `J_m` grows large and the test gains power. That is the
+whole idea: **keep the size, add power exactly where the old test was
+blind.**
 
 The same indicator that builds `J_m` also tells you *which* mediators
-are active, with family-wise error rate control (the default) or false
+are active, with familywise error rate control (the default) or false
 discovery rate control.
 
 ## 4. A first analysis, step by step
@@ -103,9 +99,9 @@ discovery rate control.
 The package can simulate data so you can see the method work before
 bringing your own.
 [`simulate_mediation_data()`](https://yelleknek.github.io/POEM/reference/simulate_mediation_data.md)
-generates the patterns studied in the manuscript. Here is a
-**contrasting** setting: a few active mediators whose effects cancel to
-a zero total indirect effect.
+generates the patterns studied in the article. Here is a **contrasting**
+setting: a few active mediators whose effects cancel to a zero total
+indirect effect.
 
 ``` r
 
@@ -140,21 +136,22 @@ defeats a total-indirect-effect test. Now run the global test:
 fit <- pe_mediation(d$X, d$Y, d$M, outcome = "continuous")
 fit
 #>  term                  value   
-#>  stat_hdmm             0.3207  
-#>  pval_hdmm             0.5712  
-#>  stat_pe               864.5   
-#>  j_pe                  864.2   
+#>  stat_hdmm             0.03881 
+#>  pval_hdmm             0.8438  
+#>  stat_pe               174.2   
+#>  j_pe                  174.1   
 #>  pval_pe               < 0.0001
-#>  total_indirect_effect -0.0417 
-#>  total_indirect_lower  -0.186  
-#>  total_indirect_upper  0.1026  
-#>  n_active_mediators    3       
+#>  total_indirect_effect 0.01054 
+#>  total_indirect_lower  -0.0943 
+#>  total_indirect_upper  0.1154  
+#>  n_active_mediators    1       
 #>  df                    1       
 #>  n_candidate_mediators 60      
 #>  n_observations        200     
 #> 
 #> Outcome model: continuous (linear)
-#> Active mediators identified (3): 2, 3, 4
+#> Active mediators identified (1): 2
+#> Tuning parameter (HBIC): lambda = 0.199 from 20 values in [0.199, 0.388] (the grid's lower end)
 ```
 
 Read the two p-values. `pval_hdmm` is the benchmark Wald test on the
@@ -186,15 +183,15 @@ value keeps full precision even though the display rounds:
 ``` r
 
 fit$value[fit$term == "pval_pe"]            # the exact p-value
-#> [1] 5.124789e-190
+#> [1] 9.154634e-40
 attr(fit, "active_mediators")               # the active mediator indices
-#> [1] 2 3 4
+#> [1] 2
 ```
 
 ## 6. Identifying which mediators are active
 
 The active set is controlled by the `method` argument. The default,
-`"Bonferroni"`, controls the family-wise error rate: it is conservative,
+`"Bonferroni"`, controls the familywise error rate: it is conservative,
 so when it flags a mediator you can be confident, but it may miss weak
 ones. The `"BH"` and `"BY"` options control the false discovery rate
 instead and typically recover more mediators.
@@ -203,9 +200,9 @@ instead and typically recover more mediators.
 
 des_idx <- function(f) attr(f, "active_mediators")
 des_idx(pe_mediation(d$X, d$Y, d$M, outcome = "continuous", method = "Bonferroni"))
-#> [1] 2 3 4
+#> [1] 2
 des_idx(pe_mediation(d$X, d$Y, d$M, outcome = "continuous", method = "BH"))
-#> [1]  2  3  4 33
+#> [1] 2
 ```
 
 The target error rate is `error_level` (default 0.05). It is distinct
@@ -241,15 +238,20 @@ pe_mediation(db$X, db$Y, db$M, outcome = "binary")
 #> 
 #> Outcome model: binary (logistic)
 #> Active mediators identified (1): 2
+#> Tuning parameter (HBIC): lambda = 0.05 from 20 values in [0.05, 1] (the grid's lower end)
 ```
 
 ## 8. A simulation study: size and power
 
 [`pe_power_curve()`](https://yelleknek.github.io/POEM/reference/pe_power_curve.md)
-reproduces the manuscript’s Monte Carlo studies. It sweeps the signal
+reproduces the article’s Monte Carlo studies. It sweeps the signal
 strength `c1`, simulating many data sets at each value and recording how
 often each test rejects. At `c1 = 0` (no mediation) the rejection rate
-estimates the Type I error rate; at nonzero `c1` it estimates power.
+estimates the Type I error rate; at nonzero `c1` it estimates power. A
+rate from `n_rep` replications carries a Monte Carlo standard error of
+about `sqrt(r * (1 - r) / n_rep)`, so the 40-replication run below knows
+a rate near 0.05 to within about 0.03 and a rate near 0.5 to within
+about 0.08.
 
 ``` r
 
@@ -258,14 +260,14 @@ pc <- pe_power_curve(n = 150, p = 50, outcome = "continuous",
                      pattern = "contrasting", c1_grid = c(0, 0.25, 0.5, 0.75, 1),
                      n_rep = 40)
 pc
-#>  c1   rejection_hdmm rejection_pe n_valid
-#>  0    0.05           0.075        40     
-#>  0.25 0.025          0.1          40     
-#>  0.5  0              0.3          40     
-#>  0.75 0.025          0.75         40     
-#>  1    0.1            0.975        40     
+#>  c1   rejection_hdmm rejection_pe n_valid n_empty
+#>  0    0.025          0.05         40      0      
+#>  0.25 0.025          0.025        40      0      
+#>  0.5  0.025          0.075        40      0      
+#>  0.75 0.05           0.175        40      0      
+#>  1    0.225          0.375        40      0      
 #> 
-#> Outcome model: continuous
+#> Outcome: continuous
 
 plot(pc$c1, pc$rejection_pe, type = "b", pch = 19, ylim = c(0, 1),
      xlab = expression(c[1] * " (signal strength)"),
@@ -280,23 +282,58 @@ legend("right", c("power-enhanced", "benchmark Wald"), pch = c(19, 1),
 ![Rejection-rate curves for the benchmark and power-enhanced
 tests](POEM_files/figure-html/power-1.png)
 
-Both curves start near the nominal 0.05 at `c1 = 0` (correct size), but
-as the contrasting signal grows the benchmark test stays flat (it is
-blind to cancelling effects) while the power-enhanced test climbs toward
-one. This small run uses `n_rep = 40`; the manuscript use `n = 300`,
-`p = 500`, and 1000 replications.
+At `c1 = 0` both tests reject at about the nominal rate. As the
+contrasting signal grows the benchmark rejects in 22 percent of
+replications at `c1 = 1` and the power-enhanced test in 38 percent. That
+is the enhancement at work, but at this small design it is modest, and
+the reason is worth knowing. The default tuning grid is the article’s
+grid rescaled to `n` and `p` (see
+[`?pe_lambda_grid`](https://yelleknek.github.io/POEM/reference/pe_lambda_grid.md)),
+and its lower end is set where the mediators the test names keep their
+familywise error guarantee. At `n = 150` and `p = 50` that floor also
+removes signal. The review-era grid, 20 values from 0.05 to 1, trades
+the guarantee for power on the same simulated data sets:
+
+``` r
+
+pc_review <- pe_power_curve(n = 150, p = 50, outcome = "continuous",
+                            pattern = "contrasting",
+                            c1_grid = c(0, 0.25, 0.5, 0.75, 1), n_rep = 40,
+                            lambda_grid = seq(0.05, 1, length.out = 20),
+                            seed = 113)
+pc_review
+#>  c1   rejection_hdmm rejection_pe n_valid n_empty
+#>  0    0.05           0.075        40      0      
+#>  0.25 0.025          0.1          40      0      
+#>  0.5  0              0.3          40      0      
+#>  0.75 0.025          0.75         40      0      
+#>  1    0.1            0.975        40      0      
+#> 
+#> Outcome: continuous
+```
+
+With it the power-enhanced test rejects in 98 percent of replications at
+`c1 = 1`, but the mediators it names can include null ones: at the
+article’s design that grid raises the identified set’s familywise error
+rate from 0.000 to about 0.17. At the article’s design (`n = 300`,
+`p = 500`, 1000 replications) the default grid gives the article’s
+Figure 1(b): the power-enhanced test rejects in about 76 percent of
+replications at `c1 = 1` and the benchmark in about 15 percent, and at
+`c1 = 0.5` the printed rates are 0.331 and 0.087 (the reproduction
+vignette runs those settings). Choose the grid by what the analysis
+needs: the default when the identified mediators will be reported, the
+wider grid when only the global test matters at a small design.
 
 ## 9. The real application: health spending as a mediator
 
-The package ships the manuscript’s empirical data,
-`WHO_health_mediation`: a panel of 91 WHO member states over 2000–2021.
-The exposure is annual growth in GDP per capita, the candidate mediators
-are 57 health-expenditure indicators from the WHO Global Health
-Expenditure Database, and there are five health outcomes (infant and
-under-five mortality, life expectancy, low birthweight, and
-undernourishment). The substantive question: **does health spending
-mediate the relationship between economic growth and population
-health?**
+The package ships the article’s empirical data, `WHO_health_mediation`:
+a panel of 91 WHO member states over 2000–2021. The exposure is annual
+growth in GDP per capita, the candidate mediators are 57
+health-expenditure indicators from the WHO Global Health Expenditure
+Database, and there are five health outcomes (infant and under-five
+mortality, life expectancy, low birthweight, and undernourishment). The
+substantive question: **does health spending mediate the relationship
+between economic growth and population health?**
 
 ``` r
 
@@ -336,7 +373,10 @@ head(WHO_indicator_codebook, 4)
 [`WHO_mediation_design()`](https://yelleknek.github.io/POEM/reference/WHO_mediation_design.md)
 assembles the exposure, outcome, mediator, and confounder matrices for a
 chosen outcome, handling the missing-data coverage and the confounders
-(region, income group, and year) for you.
+(region, income group, and year) for you. The article standardizes the
+exposure and the mediators and centers the outcome, but leaves the
+confounder indicators unscaled; the call below does the same by hand and
+passes `scale = FALSE`.
 
 ``` r
 
@@ -345,39 +385,40 @@ c(observations = des$n, mediators = ncol(des$M), confounders = ncol(des$Z))
 #> observations    mediators  confounders 
 #>         2002           57            9
 
-fit <- pe_mediation(des$X, des$Y, des$M, Z = des$Z, outcome = "continuous",
+fit <- pe_mediation(scale(des$X), des$Y - mean(des$Y), scale(des$M),
+                    Z = des$Z, outcome = "continuous", scale = FALSE,
                     lambda_grid = seq(0.1, 5, length.out = 100))
 active <- des$indicators[attr(fit, "active_mediators")]
 WHO_indicator_codebook$description[
   match(active, WHO_indicator_codebook$indicator)]
-#> [1] "Social Health Insurance (SHI) as % of CHE"       
-#> [2] "General Government Expenditure (GGE) as % of GDP"
+#> [1] "General Government Expenditure (GGE) as % of GDP"
 ```
 
-The PE test identifies general government health expenditure as the
-mediator through which economic growth reaches infant mortality.
+The PE test identifies general government expenditure as a share of GDP
+(`gge_gdp`) as the mediator through which economic growth reaches infant
+mortality, which is the article’s global finding.
 
-### Reproducing the manuscript’s table
+### Reproducing the article’s table
 
 [`WHO_mediation_analysis()`](https://yelleknek.github.io/POEM/reference/WHO_mediation_analysis.md)
-runs the whole set of models the manuscript reports for one outcome
+runs the whole set of models the article reports for one outcome
 (global, then within each WHO region and income group), using the
-manuscript’s preprocessing, and returns a table in the shape of the
-manuscript’s Table for that outcome.
+article’s preprocessing, and returns a table in the shape of the
+article’s Table for that outcome.
 
 ``` r
 
 res <- WHO_mediation_analysis("imr", groupings = c("global", "region"),
                               lambda_grid = seq(0.1, 10, length.out = 40))
 res[, c("group", "n_countries", "pval_hdmm", "pval_pe", "active_mediators")]
-#>  group n_countries pval_hdmm pval_pe   active_mediators 
-#>  ALL   91          0.04094   7.633e-29 gge_gdp          
-#>  AFR   32          0.4415    0.4415    none             
-#>  AMR   28          0.4129    0.4129    none             
-#>  EMR   8           0.03045   0.03045   none             
-#>  EUR   9           0.003479  1.579e-44 gge_gdp          
-#>  SEAR  5           0.3087    4.128e-41 ext_usd2021_pc   
-#>  WPR   9           0.8721    3.766e-83 chi_che, pvtd_gdp
+#>  group n_countries pval_hdmm pval_pe  active_mediators 
+#>  ALL   91          0.0409    < 0.0001 gge_gdp          
+#>  AFR   32          0.4415    0.4415   none             
+#>  AMR   28          0.4129    0.4129   none             
+#>  EMR   8           0.0304    0.0304   none             
+#>  EUR   9           0.0035    < 0.0001 gge_gdp          
+#>  SEAR  5           0.3087    < 0.0001 ext_usd2021_pc   
+#>  WPR   9           0.8721    < 0.0001 chi_che, pvtd_gdp
 ```
 
 Compare the benchmark and PE columns. In several regions the benchmark
@@ -387,7 +428,7 @@ region, for example, the benchmark p-value is near 1 yet the PE test
 detects compulsory health insurance and private expenditure as active
 mediators. These are the cases where heterogeneous mediation hides the
 signal from the conventional test, and they reproduce the findings in
-the manuscript.
+the article.
 
 [`summary()`](https://rdrr.io/r/base/summary.html) reads that comparison
 off the table for you, counting the groups where the PE test detects
@@ -397,7 +438,7 @@ mediation the benchmark misses:
 
 summary(res)
 #> POEM comparison: IMR
-#>   groups: 7 (7 with data), alpha = 0.05
+#>   groups: 7 (7 with data), alpha_level = 0.05
 #>   detected by benchmark (HDMM): 3   by power-enhanced (PE): 5
 #>   PE detects mediation in 2 groups the benchmark misses:
 #>  group n_countries pval_hdmm  pval_pe  active_mediators
@@ -410,26 +451,33 @@ summary(res)
 #>     pvtd_gdp           1
 ```
 
-### Reproducing the manuscript’s exact numbers
+### Why the preprocessing matters
 
-The article standardizes the exposure and mediators and centers the
-outcome, but leaves the confounder indicators unscaled.
 [`WHO_mediation_analysis()`](https://yelleknek.github.io/POEM/reference/WHO_mediation_analysis.md)
-does this internally. To do it by hand with
-[`pe_mediation()`](https://yelleknek.github.io/POEM/reference/pe_mediation.md):
+applies the article’s preprocessing internally. Passing the raw design
+to
+[`pe_mediation()`](https://yelleknek.github.io/POEM/reference/pe_mediation.md)
+with the default `scale = TRUE` standardizes the confounder indicators
+as well, and that is a different model: on the same tuning grid the
+benchmark Wald p-value moves from about 0.041 to about 0.23, and the
+penalized selection adds a second indicator, social health insurance
+(`shi_che`).
 
 ``` r
 
-pe_mediation(scale(des$X), des$Y - mean(des$Y), scale(des$M), Z = des$Z,
-             outcome = "continuous", scale = FALSE,
-             lambda_grid = seq(0.1, 5, length.out = 100))
+raw <- pe_mediation(des$X, des$Y, des$M, Z = des$Z, outcome = "continuous",
+                    lambda_grid = seq(0.1, 5, length.out = 100))
+c(article_preprocessing = fit$value[fit$term == "pval_hdmm"],
+  raw_matrices = raw$value[raw$term == "pval_hdmm"])
+#> article_preprocessing          raw_matrices 
+#>            0.04094124            0.23191044
+des$indicators[attr(raw, "active_mediators")]
+#> [1] "shi_che" "gge_gdp"
 ```
 
-The call above (`who-design`) passes the raw matrices with
-`scale = TRUE`, so the confounder indicators are also standardized; the
-exact call above leaves them unscaled. Both use the same tuning grid and
-identify the same active mediators; only the benchmark Wald p-value
-shifts, because scaling the indicator columns changes that test.
+Use the article’s preprocessing (or
+[`WHO_mediation_analysis()`](https://yelleknek.github.io/POEM/reference/WHO_mediation_analysis.md),
+which applies it) whenever the goal is to reproduce its numbers.
 
 ## 10. Beyond the global test: the toolkit
 
@@ -466,12 +514,9 @@ active. This is how you see *why* the test reached its conclusion.
 ``` r
 
 pe_mediators(fit)
-#>  mediator t_outcome t_exposure screen_p  selected
-#>  1        21.75     0.3641     0.7158    FALSE   
-#>  2        -10.21    3.131      0.001741   TRUE   
-#>  3        8.602     4.349      1.365e-05  TRUE   
-#>  4        -6.82     6.185      6.227e-10  TRUE   
-#>  33       -2.378    -13.08     0.01741   FALSE
+#>  mediator name t_outcome t_exposure screen_p selected
+#>  1        X1   18.22     0.3641     0.7158   FALSE   
+#>  2        X2   -7.179    3.131      0.0017    TRUE
 ```
 
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) shows the same
@@ -488,35 +533,38 @@ mediators](POEM_files/figure-html/plot-mediators-1.png)
 
 ### broom verbs
 
-`tidy()` returns the per-mediator table and `glance()` a one-row
-summary, so a POEM result drops into broom and tidyverse workflows.
+[`tidy()`](https://yelleknek.github.io/POEM/reference/poem_broom.md)
+returns the per-mediator table and
+[`glance()`](https://yelleknek.github.io/POEM/reference/poem_broom.md) a
+one-row summary, so a POEM result drops into broom and tidyverse
+workflows.
 
 ``` r
 
-generics::glance(fit)
-#>   stat_hdmm pval_hdmm  stat_pe       pval_pe total_indirect_effect
-#> 1 0.3207394 0.5711636 864.4981 5.124789e-190           -0.04170392
+glance(fit)
+#>    stat_hdmm pval_hdmm  stat_pe      pval_pe total_indirect_effect
+#> 1 0.03881027  0.843825 174.1554 9.154634e-40            0.01053815
 #>   n_active_mediators n_observations
-#> 1                  3            200
+#> 1                  1            200
 ```
 
 ### All three multiplicity methods at once
 
 Pass `report_all_methods = TRUE` and
 [`pe_selection()`](https://yelleknek.github.io/POEM/reference/pe_selection.md)
-reports the active set under Bonferroni (family-wise error rate),
+reports the active set under Bonferroni (familywise error rate),
 Benjamini-Hochberg, and Benjamini-Yekutieli (false discovery rate) side
-by side, as the supplement of the manuscript does.
+by side, as the supplement of the article does.
 
 ``` r
 
 fit_all <- pe_mediation(d$X, d$Y, d$M, outcome = "continuous",
                         report_all_methods = TRUE)
 pe_selection(fit_all)
-#>       method n_active      j_pe   stat_pe       pval_pe active_mediators
-#> 1 Bonferroni        3  864.1774  864.4981 5.124789e-190          2, 3, 4
-#> 2         BH        4 1105.1162 1105.4370 2.173658e-242      2, 3, 4, 33
-#> 3         BY        3  864.1774  864.4981 5.124789e-190          2, 3, 4
+#>  method     n_active j_pe  stat_pe pval_pe  active_mediators
+#>  Bonferroni 1        174.1 174.2   < 0.0001 2               
+#>  BH         1        174.1 174.2   < 0.0001 2               
+#>  BY         1        174.1 174.2   < 0.0001 2
 ```
 
 ### Planning the sample size
@@ -547,9 +595,40 @@ To analyze your own study, arrange:
 
 then call `pe_mediation(X, Y, M, Z, outcome = ...)`. The defaults
 standardize the inputs as the method assumes, choose the tuning
-parameter by a high-dimensional information criterion, and control the
-family-wise error rate when identifying active mediators. Everything
-returned is an ordinary data frame you can index, save, or plot.
+parameter by a high-dimensional information criterion from a grid whose
+lower end keeps the identified set’s error-rate guarantee, and control
+the familywise error rate when identifying active mediators. Everything
+returned is an ordinary data frame you can index, save, or plot, and the
+print footer reports the tuning parameter chosen.
+
+### When POEM Is the Right Tool, and When It Is Not
+
+The tests assume a linear (or generalized linear) outcome model with a
+sparse set of active mediators, standardized inputs, and complete data.
+Some practical limits, seen on simulated data during the package’s
+release audit:
+
+- Sample size. The penalized selection needs `n` large relative to
+  `log(p)` and to the signal; with `n` near 100 and `p` in the thousands
+  under the contrasting pattern the selection keeps a single mediator
+  and the power-enhanced test has no power to add. The default grid’s
+  floor rises as `n` falls (see
+  [`?pe_lambda_grid`](https://yelleknek.github.io/POEM/reference/pe_lambda_grid.md)),
+  which protects the identified set but costs global power at small
+  designs; the section on the simulation study above shows the size of
+  that cost.
+- Strongly correlated mediators. With an autoregressive correlation of
+  0.9 among neighboring mediators the selection keeps one representative
+  of a correlated block, so the identified set is unstable from sample
+  to sample even when the global test rejects.
+- Rare binary outcomes. With about 2 to 3 percent events at `n = 300`
+  the penalized logistic fit selects nothing at any grid value; the fit
+  is empty and the function says so (see
+  [`?pe_mediation`](https://yelleknek.github.io/POEM/reference/pe_mediation.md)).
+- Overdispersed counts. The count model is Poisson; under negative
+  binomial overdispersion its size was not inflated at `n = 200`,
+  `p = 100`, but about a tenth of the fits were empty.
+- Missing values are not handled; complete the data first.
 
 ## References
 
@@ -559,9 +638,51 @@ Association*.
 
 Fan, J., Liao, Y., & Yao, J. (2015). Power enhancement in
 high-dimensional cross-sectional tests. *Econometrica, 83*(4),
-1497–1541.
+1497–1541. <https://doi.org/10.3982/ECTA12749>
 
 Guo, X., Li, R., Liu, J., & Zeng, M. (2022). High-dimensional mediation
 analysis for selecting DNA methylation loci mediating childhood trauma
 and cortisol stress reactivity. *Journal of the American Statistical
 Association, 117*(539), 1110–1121.
+<https://doi.org/10.1080/01621459.2022.2053136>
+
+## Session Information
+
+``` r
+
+sessionInfo()
+#> R version 4.6.1 (2026-06-24)
+#> Platform: x86_64-pc-linux-gnu
+#> Running under: Ubuntu 24.04.5 LTS
+#> 
+#> Matrix products: default
+#> BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 
+#> LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0
+#> 
+#> locale:
+#>  [1] LC_CTYPE=C.UTF-8       LC_NUMERIC=C           LC_TIME=C.UTF-8       
+#>  [4] LC_COLLATE=C.UTF-8     LC_MONETARY=C.UTF-8    LC_MESSAGES=C.UTF-8   
+#>  [7] LC_PAPER=C.UTF-8       LC_NAME=C              LC_ADDRESS=C          
+#> [10] LC_TELEPHONE=C         LC_MEASUREMENT=C.UTF-8 LC_IDENTIFICATION=C   
+#> 
+#> time zone: UTC
+#> tzcode source: system (glibc)
+#> 
+#> attached base packages:
+#> [1] stats     graphics  grDevices utils     datasets  methods   base     
+#> 
+#> other attached packages:
+#> [1] POEM_1.0.0
+#> 
+#> loaded via a namespace (and not attached):
+#>  [1] cli_3.6.6         knitr_1.52        rlang_1.3.0       xfun_0.61        
+#>  [5] otel_0.2.0        generics_0.1.4    textshaping_1.0.5 jsonlite_2.0.0   
+#>  [9] htmltools_0.5.9   ragg_1.5.2        sass_0.4.10       glmnet_5.1       
+#> [13] rmarkdown_2.32    grid_4.6.1        evaluate_1.0.5    jquerylib_0.1.4  
+#> [17] fastmap_1.2.0     foreach_1.5.2     yaml_2.3.12       lifecycle_1.0.5  
+#> [21] compiler_4.6.1    codetools_0.2-20  fs_2.1.0          Rcpp_1.1.2       
+#> [25] lattice_0.22-9    systemfonts_1.3.2 digest_0.6.39     R6_2.6.1         
+#> [29] ncvreg_3.16.0     splines_4.6.1     shape_1.4.6.1     bslib_0.12.0     
+#> [33] Matrix_1.7-5      withr_3.0.3       tools_4.6.1       iterators_1.0.14 
+#> [37] survival_3.8-6    pkgdown_2.2.1     cachem_1.1.0      desc_1.4.3
+```

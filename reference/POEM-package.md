@@ -1,10 +1,10 @@
-# POEM: Power Enhancement for Mediation in R
+# Power Enhancement for High-Dimensional Mediation Analysis (POEM)
 
 Powerful global tests for high-dimensional mediation analysis, for
 continuous, binary, and count outcomes. The package answers the question
 “is there any active mediator among a large set of candidate mediators?”
 and, when the answer is yes, reports which individual mediators are
-active.
+active. The name comes from POwer-Enhanced Mediation.
 
 ## The problem POEM solves
 
@@ -48,12 +48,12 @@ under the global null of no mediation.
 - [`simulate_mediation_data()`](https://yelleknek.github.io/POEM/reference/simulate_mediation_data.md):
 
   Generates mediation data under the homogeneous, heterogeneous, and
-  contrasting patterns studied in the manuscript, for any of the three
+  contrasting patterns studied in the article, for any of the three
   outcome types.
 
 - [`pe_power_curve()`](https://yelleknek.github.io/POEM/reference/pe_power_curve.md):
 
-  Runs the manuscript's Monte Carlo size and power study: it sweeps a
+  Runs the article's Monte Carlo size and power study: it sweeps a
   signal-strength grid and returns the empirical rejection rate of the
   benchmark and power-enhanced tests at each point.
 
@@ -96,7 +96,7 @@ under the global null of no mediation.
   The article's empirical data (economic growth, 57 health-expenditure
   mediators, five health outcomes for 91 WHO members), a helper that
   assembles an analysis design from it, and a function that reproduces
-  the manuscript's full set of subgroup analyses.
+  the article's full set of subgroup analyses.
 
 ## Reading the output
 
@@ -117,12 +117,13 @@ Association*.
 
 Fan, J., Liao, Y., and Yao, J. (2015). Power enhancement in
 high-dimensional cross-sectional tests. *Econometrica, 83*(4),
-1497–1541.
+1497–1541. [doi:10.3982/ECTA12749](https://doi.org/10.3982/ECTA12749)
 
 Guo, X., Li, R., Liu, J., and Zeng, M. (2022). High-dimensional
 mediation analysis for selecting DNA methylation loci mediating
 childhood trauma and cortisol stress reactivity. *Journal of the
 American Statistical Association, 117*(539), 1110–1121.
+[doi:10.1080/01621459.2022.2053136](https://doi.org/10.1080/01621459.2022.2053136)
 
 ## See also
 

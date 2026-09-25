@@ -1,6 +1,6 @@
 # Monte Carlo size and power curve for the PE mediation tests
 
-Reproduces the manuscript's simulation studies: for each value of the
+Reproduces the article's simulation studies: for each value of the
 signal-strength scale \\c_1\\ on a grid, it simulates many data sets,
 applies both the benchmark Wald test and the power-enhanced test, and
 returns their empirical rejection rates. At \\c_1 = 0\\ (the global null
@@ -21,9 +21,11 @@ pe_power_curve(
   c1_grid = seq(0, 1, by = 0.25),
   c2 = 0.5,
   n_rep = 100,
-  alpha = 0.05,
+  alpha_level = 0.05,
   method = c("Bonferroni", "BH", "BY"),
   error_level = 0.05,
+  lambda_grid = NULL,
+  lambda_grid_reduced = NULL,
   outcome_args = list(),
   cores = 1L,
   seed = NULL,
@@ -52,7 +54,7 @@ pe_power_curve(
 
   Numeric vector of signal-strength scales to sweep. Default
   `seq(0, 1, by = 0.25)`. Include 0 to estimate the Type I error rate;
-  the manuscript also uses negative values.
+  the article also uses negative values.
 
 - c2:
 
@@ -63,10 +65,10 @@ pe_power_curve(
   Number of Monte Carlo replications per grid point. Default 100. The
   article uses 1000.
 
-- alpha:
+- alpha_level:
 
   Significance level for the global test. A replication counts as a
-  rejection when its p-value is at most `alpha`. Default 0.05.
+  rejection when its p-value is at most `alpha_level`. Default 0.05.
 
 - method, error_level:
 
@@ -75,11 +77,22 @@ pe_power_curve(
   the multiplicity method and target error rate for the
   mediator-screening step.
 
+- lambda_grid, lambda_grid_reduced:
+
+  Passed to
+  [`pe_mediation()`](https://yelleknek.github.io/POEM/reference/pe_mediation.md):
+  the tuning grids for the penalized fit. Default `NULL`, the family's
+  default grid (see
+  [`pe_lambda_grid()`](https://yelleknek.github.io/POEM/reference/pe_lambda_grid.md)).
+
 - outcome_args:
 
   A list of further arguments forwarded to
   [`simulate_mediation_data()`](https://yelleknek.github.io/POEM/reference/simulate_mediation_data.md)
-  (for example `rho`, `q`, `d`, `tau`, `alpha_m`). Default empty.
+  (for example `rho`, `q`, `d`, `tau`, `alpha_m`). Default empty. The
+  design arguments this function sets itself (`n`, `p`, `outcome`,
+  `pattern`, `c1`, `c2`) and `seed` may not appear here; a `seed` inside
+  `outcome_args` would make every replication draw the same data.
 
 - cores:
 
@@ -103,14 +116,37 @@ pe_power_curve(
 
 A tidy `data.frame` of class `poem_tbl` with one row per grid point and
 columns `c1`, `rejection_hdmm`, and `rejection_pe` (the empirical
-rejection rates of the benchmark and power-enhanced tests), and
-`n_valid` (replications that fit successfully). The simulation settings
-are recorded in attributes.
+rejection rates of the benchmark and power-enhanced tests), `n_valid`
+(replications whose fit succeeded, the denominator of the rates), and
+`n_empty` (replications whose penalized fit selected no mediator,
+counted as non-rejections). The simulation settings are recorded in the
+attributes `outcome`, `pattern`, `n`, `p`, `n_rep`, `alpha_level`,
+`error_level`, and `lambda_grid`.
+
+## Details
+
+A rejection rate from `n_rep` replications carries a Monte Carlo
+standard error of about \\\sqrt{r(1 - r) / n\_{rep}}\\; at 100
+replications a rate near 0.05 is known to about 0.02 and a rate near 0.5
+to about 0.05. The article uses 1000 replications. A replication whose
+penalized fit selects no mediator counts as a non-rejection (both
+p-values are 1), the article's convention; the number of such
+replications is reported in `n_empty`. A replication whose fit fails
+outright is dropped from the denominator and reported in `n_valid`, with
+a warning that quotes the first error.
+
+The tuning grid matters for what these curves show. The article's
+figures were produced with per-setting grids (see
+[`pe_lambda_grid()`](https://yelleknek.github.io/POEM/reference/pe_lambda_grid.md));
+the default here is that grid rescaled to `n` and `p`, so the article's
+settings reproduce its curves within Monte Carlo error. Pass
+`lambda_grid` to study another grid.
 
 ## See also
 
 [`pe_mediation()`](https://yelleknek.github.io/POEM/reference/pe_mediation.md),
-[`simulate_mediation_data()`](https://yelleknek.github.io/POEM/reference/simulate_mediation_data.md).
+[`simulate_mediation_data()`](https://yelleknek.github.io/POEM/reference/simulate_mediation_data.md),
+[`pe_lambda_grid()`](https://yelleknek.github.io/POEM/reference/pe_lambda_grid.md).
 
 Other mediation simulation:
 [`guo_calibration`](https://yelleknek.github.io/POEM/reference/guo_calibration.md),
@@ -129,18 +165,18 @@ Xiufan Yu and Ken Kelley
 ## Examples
 
 ``` r
-# \donttest{
-# A small, fast sweep. Raise n, p, and n_rep toward the manuscript's
-# n = 300, p = 500, n_rep = 1000 for a publication-scale study.
+# n_rep = 5 keeps this example fast; a rate from five replications has a
+# Monte Carlo standard error of up to 0.22, so read the shape, not the
+# numbers. A reported study uses the article's design (n = 300, p = 500)
+# and 1000 replications.
 set.seed(113)
-pe_power_curve(n = 120, p = 60, outcome = "continuous",
+pe_power_curve(n = 200, p = 60, outcome = "continuous",
                pattern = "contrasting", c1_grid = c(0, 0.5, 1),
-               n_rep = 20)
-#>  c1  rejection_hdmm rejection_pe n_valid
-#>  0   0              0            20     
-#>  0.5 0              0.5          20     
-#>  1   0.15           0.95         20     
+               n_rep = 5)
+#>  c1  rejection_hdmm rejection_pe n_valid n_empty
+#>  0   0              0            5       0      
+#>  0.5 0              0.2          5       0      
+#>  1   0.2            0.4          5       0      
 #> 
-#> Outcome model: continuous
-# }
+#> Outcome: continuous
 ```

@@ -48,7 +48,7 @@ analyze it."><meta property="og:image" content="https://yelleknek.github.io/POEM
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Simulation-based sample size planning for the power-enhanced mediation test</h1>
-      <small class="dont-index">Source: <a href="https://github.com/yelleKneK/POEM/blob/v1.0.0/R/ss_power_pe_mediation.R" class="external-link"><code>R/ss_power_pe_mediation.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/yelleKneK/POEM/blob/main/R/ss_power_pe_mediation.R" class="external-link"><code>R/ss_power_pe_mediation.R</code></a></small>
       <div class="d-none name"><code>ss_power_pe_mediation.Rd</code></div>
     </div>
 
@@ -74,9 +74,11 @@ analyze it.</p>
 <span>  c2 <span class="op">=</span> <span class="fl">0.5</span>,</span>
 <span>  target_power <span class="op">=</span> <span class="fl">0.8</span>,</span>
 <span>  n_rep <span class="op">=</span> <span class="fl">200</span>,</span>
-<span>  alpha <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  alpha_level <span class="op">=</span> <span class="fl">0.05</span>,</span>
 <span>  method <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Bonferroni"</span>, <span class="st">"BH"</span>, <span class="st">"BY"</span><span class="op">)</span>,</span>
 <span>  error_level <span class="op">=</span> <span class="fl">0.05</span>,</span>
+<span>  lambda_grid <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  lambda_grid_reduced <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  cores <span class="op">=</span> <span class="fl">1L</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -119,7 +121,7 @@ analyze it.</p>
 <dd><p>Monte Carlo replications per candidate <code>n</code>. Default 200.</p></dd>
 
 
-<dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
+<dt id="arg-alpha-level">alpha_level<a class="anchor" aria-label="anchor" href="#arg-alpha-level"></a></dt>
 <dd><p>Significance level. Default 0.05.</p></dd>
 
 
@@ -127,8 +129,17 @@ analyze it.</p>
 <dd><p>Passed to <code><a href="pe_mediation.html">pe_mediation()</a></code>.</p></dd>
 
 
+<dt id="arg-lambda-grid-lambda-grid-reduced">lambda_grid, lambda_grid_reduced<a class="anchor" aria-label="anchor" href="#arg-lambda-grid-lambda-grid-reduced"></a></dt>
+<dd><p>Passed to <code><a href="pe_mediation.html">pe_mediation()</a></code>; the
+default <code>NULL</code> uses the family's default grid at each candidate <code>n</code>
+(for a continuous outcome the article's grid rescaled by
+<code><a href="pe_lambda_grid.html">pe_lambda_grid()</a></code>, so the grid follows the sample size being planned).</p></dd>
+
+
 <dt id="arg-cores">cores<a class="anchor" aria-label="anchor" href="#arg-cores"></a></dt>
-<dd><p>Number of CPU cores (Unix forking). Default 1.</p></dd>
+<dd><p>Number of CPU cores (Unix forking). A seeded parallel run is
+reproducible across runs at the same <code>cores</code> but need not match a
+serial run. Default 1.</p></dd>
 
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
@@ -138,10 +149,12 @@ analyze it.</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A tidy <code>data.frame</code> (class <code>poem_tbl</code>) with one row per
-candidate sample size and columns <code>n</code>, <code>power_pe</code>, <code>power_hdmm</code>, and
-<code>n_valid</code>. The smallest <code>n</code> reaching <code>target_power</code> for the PE test is
-stored in the <code>"recommended_n"</code> attribute (<code>NA</code> if no grid value
-reaches it).</p>
+candidate sample size and columns <code>n</code>, <code>power_pe</code>, <code>power_hdmm</code>,
+<code>n_valid</code>, and <code>n_empty</code> (see <code><a href="pe_power_curve.html">pe_power_curve()</a></code>). The smallest <code>n</code>
+reaching <code>target_power</code> for the PE test is stored in the
+<code>"recommended_n"</code> attribute (<code>NA</code> if no grid value reaches it), with
+<code>"target_power"</code>, <code>"outcome"</code>, <code>"pattern"</code>, <code>"c1"</code>, <code>"c2"</code>, <code>"n_rep"</code>,
+and <code>"alpha_level"</code>.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -150,7 +163,7 @@ no analytic power expression exists for the PE test, so sample size is
 instead determined by direct Monte Carlo simulation. Power is estimated
 by simulating <code>n_rep</code> data sets at each candidate
 <code>n</code> with <code><a href="simulate_mediation_data.html">simulate_mediation_data()</a></code> and recording how often the test
-rejects at level <code>alpha</code>. Because the estimate is a Monte Carlo
+rejects at level <code>alpha_level</code>. Because the estimate is a Monte Carlo
 proportion, it carries simulation error of roughly
 \(\sqrt{power(1 - power) / n\_rep}\); raise <code>n_rep</code> for a smoother
 curve and a more stable recommendation. The grid approach (rather than
@@ -179,20 +192,22 @@ whole trajectory.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># n_rep = 5 keeps this example fast; a power estimate from five</span></span></span>
+<span class="r-in"><span><span class="co"># replications has a Monte Carlo standard error of up to 0.22, so the</span></span></span>
+<span class="r-in"><span><span class="co"># recommended n here is a demonstration, not a plan. Planning a study</span></span></span>
+<span class="r-in"><span><span class="co"># deserves n_rep of several hundred.</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">113</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">plan</span> <span class="op">&lt;-</span> <span class="fu">ss_power_pe_mediation</span><span class="op">(</span>outcome <span class="op">=</span> <span class="st">"continuous"</span>, pattern <span class="op">=</span> <span class="st">"contrasting"</span>,</span></span>
-<span class="r-in"><span>                              p <span class="op">=</span> <span class="fl">50</span>, n_grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">80</span>, <span class="fl">120</span>, <span class="fl">160</span><span class="op">)</span>, n_rep <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                              p <span class="op">=</span> <span class="fl">50</span>, n_grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">80</span>, <span class="fl">120</span>, <span class="fl">160</span><span class="op">)</span>, n_rep <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">plan</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  n   power_pe power_hdmm n_valid</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  80  0.5333   0.1333     30     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  120 0.8667   0.06667    30     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  160 0.9667   0.1        30     </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  n   power_pe power_hdmm n_valid n_empty</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  80  0.2      0          5       0      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  120 0.4      0.4        5       0      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  160 0.4      0          5       0      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Outcome model: continuous</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Outcome: continuous</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">plan</span>, <span class="st">"recommended_n"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 120</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] NA</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

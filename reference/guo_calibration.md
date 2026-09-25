@@ -1,9 +1,9 @@
 # Calibration constants for the real-data-motivated heterogeneous setting
 
-The fixed constants for the manuscript's real-data-motivated
-heterogeneous mediation simulation, calibrated to the DNA-methylation
-case study of Guo et al. (2022): a \\p = 1008\\-mediator linear model
-with eleven active loci whose effects mix positive and negative signs.
+The fixed constants for the article's real-data-motivated heterogeneous
+mediation simulation, calibrated to the DNA-methylation case study of
+Guo et al. (2022): a \\p = 1008\\-mediator linear model with eleven
+active loci whose effects mix positive and negative signs.
 [`simulate_guo_mediation()`](https://yelleknek.github.io/POEM/reference/simulate_guo_mediation.md)
 generates data from these constants; the object is exported so the exact
 calibration is inspectable.
@@ -48,7 +48,7 @@ A list with components:
 - beta_per_c1:
 
   The total indirect effect per unit `c1`, equal to
-  `sum(Gamma_x * alpha_m)` \\\approx -1.597\\ (the manuscript reports
+  `sum(Gamma_x * alpha_m)` \\\approx -1.597\\ (the article reports
   -1.5977 from the unrounded coefficients).
 
 - alpha_m_estimated:
@@ -59,13 +59,13 @@ A list with components:
 
 - alpha_m_variants:
 
-  Two alternative outcome-mediator coefficient sets the manuscript also
+  Two alternative outcome-mediator coefficient sets the article also
   studies, `homogeneous_like` and `contrasting_like`, which remain
   heterogeneous when paired with `Gamma_x`.
 
 ## Source
 
-Transcribed from the supplement of the manuscript (its
+Transcribed from the supplement of the article (its
 parameter-configuration section), which in turn calibrates to the
 `simulation_allS.Rdata` of Guo et al. (2022).
 
@@ -74,9 +74,9 @@ parameter-configuration section), which in turn calibrates to the
 Pairing the exposure-mediator coefficients `Gamma_x` with the
 outcome-mediator coefficients `alpha_m` gives a total indirect effect of
 `beta_per_c1` \\\approx -1.597\\ per unit of the signal scale \\c_1\\.
-(The manuscript reports \\-1.5977\\, computed from the full-precision
-Guo coefficients; the values shipped here are those coefficients rounded
-to the three decimals printed in the supplement, which give \\-1.597\\.)
+(The article reports \\-1.5977\\, computed from the full-precision Guo
+coefficients; the values shipped here are those coefficients rounded to
+the three decimals printed in the supplement, which give \\-1.597\\.)
 
 ## References
 
@@ -84,6 +84,7 @@ Guo, X., Li, R., Liu, J., & Zeng, M. (2022). High-dimensional mediation
 analysis for selecting DNA methylation loci mediating childhood trauma
 and cortisol stress reactivity. *Journal of the American Statistical
 Association, 117*(539), 1110–1121.
+[doi:10.1080/01621459.2022.2053136](https://doi.org/10.1080/01621459.2022.2053136)
 
 ## See also
 

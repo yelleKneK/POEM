@@ -60,7 +60,7 @@
       <img src="../logo.svg" class="logo" alt=""><h1>POEM and the Competition: A Head-to-Head</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/yelleKneK/POEM/blob/v1.0.0/vignettes/poem-vs-competitors.Rmd" class="external-link"><code>vignettes/poem-vs-competitors.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/yelleKneK/POEM/blob/main/vignettes/poem-vs-competitors.Rmd" class="external-link"><code>vignettes/poem-vs-competitors.Rmd</code></a></small>
       <div class="d-none name"><code>poem-vs-competitors.Rmd</code></div>
     </div>
 
@@ -73,17 +73,17 @@ power-enhanced test (<strong>PE</strong>) keeps that test intact and
 adds a component that reads the marginal signal from individual
 mediators. The two therefore agree by construction whenever the
 enhancement is zero, and differ only when it is not.</p>
-<p>There is exactly one situation in which the two coincide: when the
-active mediators all push the outcome the same way, the enhancement adds
-nothing and both tests reject. That homogeneous case is the easy case,
-and it is not the one that motivates the method. The cases that do
-(mediators acting in different directions, which is the rule rather than
-the exception in real data) are where the benchmark loses power and the
-power-enhanced test does not. This vignette leads with those, then shows
-the homogeneous tie for completeness, and lets the output speak
-throughout. (Other comparators named in the manuscript, namely HILMA,
-GlobalTest, HDMT, and DACT, live in separate packages; the closing
-section shows how to fold them in if you have them installed.)</p>
+<p>Under the global null the two coincide, and both hold their size.
+When the active mediators all push the outcome the same way, both reject
+and the enhancement adds a margin (the article’s Figure 1(a)); that
+homogeneous case is the easy one, and it is not the one that motivates
+the method. The cases that do, mediators acting in different directions,
+are where the benchmark loses power and the power-enhanced test does
+not. This vignette leads with those, then shows the homogeneous case,
+and lets the output speak throughout. (Other comparators named in the
+article, namely HILMA, GlobalTest, HDMT, and DACT, live in separate
+packages; the closing section shows how to fold them in if you have them
+installed.)</p>
 <div class="section level2">
 <h2 id="one-data-set-two-verdicts">One data set, two verdicts<a class="anchor" aria-label="anchor" href="#one-data-set-two-verdicts"></a>
 </h2>
@@ -95,9 +95,9 @@ though four mediators are genuinely active
 (<strong>contrasting</strong>).</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">homo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_mediation_data.html">simulate_mediation_data</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">200</span>, p <span class="op">=</span> <span class="fl">80</span>, outcome <span class="op">=</span> <span class="st">"continuous"</span>,</span>
-<span>                                pattern <span class="op">=</span> <span class="st">"homogeneous"</span>, c1 <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span>                                pattern <span class="op">=</span> <span class="st">"homogeneous"</span>, c1 <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">cont</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/simulate_mediation_data.html">simulate_mediation_data</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">200</span>, p <span class="op">=</span> <span class="fl">80</span>, outcome <span class="op">=</span> <span class="st">"continuous"</span>,</span>
-<span>                                pattern <span class="op">=</span> <span class="st">"contrasting"</span>, c1 <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span></span>
+<span>                                pattern <span class="op">=</span> <span class="st">"contrasting"</span>, c1 <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">verdict</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">d</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pe_mediation.html">pe_mediation</a></span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">X</span>, <span class="va">d</span><span class="op">$</span><span class="va">Y</span>, <span class="va">d</span><span class="op">$</span><span class="va">M</span>, outcome <span class="op">=</span> <span class="st">"continuous"</span><span class="op">)</span></span>
@@ -105,14 +105,13 @@ though four mediators are genuinely active
 <span><span class="op">}</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span>homogeneous <span class="op">=</span> <span class="fu">verdict</span><span class="op">(</span><span class="va">homo</span><span class="op">)</span>, contrasting <span class="op">=</span> <span class="fu">verdict</span><span class="op">(</span><span class="va">cont</span><span class="op">)</span><span class="op">)</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt;               HDMM PE</span></span>
-<span><span class="co">#&gt; homogeneous 0.0412  0</span></span>
-<span><span class="co">#&gt; contrasting 0.3838  0</span></span></code></pre></div>
-<p>When the mediators agree in sign, both tests reject: there is nothing
-to enhance, and they give the same answer. When the mediators cancel,
-the benchmark sees a zero total indirect effect and returns a large
-p-value, while the power-enhanced test still detects the four active
-mediators. Both data sets contain real mediation; only one test sees it
-in both.</p>
+<span><span class="co">#&gt; homogeneous 0.0003  0</span></span>
+<span><span class="co">#&gt; contrasting 0.0243  0</span></span></code></pre></div>
+<p>When the mediators agree in sign, both tests reject, the
+power-enhanced one more decisively. When the mediators cancel, the
+benchmark sees a zero total indirect effect and returns a large p-value,
+while the power-enhanced test still detects mediation. Both data sets
+contain real mediation; only one test sees it in both.</p>
 </div>
 <div class="section level2">
 <h2 id="size-neither-test-trades-error-for-power">Size: neither test trades error for power<a class="anchor" aria-label="anchor" href="#size-neither-test-trades-error-for-power"></a>
@@ -126,8 +125,9 @@ benchmark’s size rather than buying power with inflated error:</p>
 <span>                       pattern <span class="op">=</span> <span class="st">"contrasting"</span>, c1_grid <span class="op">=</span> <span class="fl">0</span>, n_rep <span class="op">=</span> <span class="fl">60</span><span class="op">)</span></span>
 <span><span class="va">size</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"rejection_hdmm"</span>, <span class="st">"rejection_pe"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;  rejection_hdmm rejection_pe</span></span>
-<span><span class="co">#&gt;  0.01667        0.05</span></span></code></pre></div>
-<p>Both sit near the nominal 0.05. Whatever PE gains later, it does not
+<span><span class="co">#&gt;  0              0</span></span></code></pre></div>
+<p>Both sit near the nominal 0.05 (with 60 replications a rate near 0.05
+is known to within about 0.03). Whatever PE gains later, it does not
 come from a looser null.</p>
 </div>
 <div class="section level2">
@@ -150,8 +150,8 @@ mediators <strong>fully cancel</strong> (the total indirect effect is
 exactly zero). On the right, six mediators of <strong>mixed
 sign</strong> only <em>partially</em> cancel, leaving a small nonzero
 total indirect effect, the kind of messy signal real data actually
-presents. In both the benchmark is at or near its size while the
-power-enhanced test climbs toward one.</p>
+presents. In both the benchmark stays near its size across the grid
+while the power-enhanced test rises above it.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p</span> <span class="op">&lt;-</span> <span class="fl">50</span></span>
 <span><span class="co"># Mixed-sign mediators that only partially cancel: a small but nonzero total</span></span>
@@ -171,33 +171,43 @@ power-enhanced test climbs toward one.</p>
 <p><img src="poem-vs-competitors_files/figure-html/dominate-1.png" class="r-plt" alt="Rejection-rate curves showing PE dominating HDMM under fully-cancelling and partially-cancelling heterogeneous mediation" width="672"></p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="va">op</span><span class="op">)</span></span></code></pre></div>
-<p>The benchmark is built on the total indirect effect; when that
+<p>At <code>c1 = 1</code> the rates are 0.07 against 0.33 (fully
+cancelling) and 0.33 against 1.00 (partially cancelling), from 30
+replications, so each carries a Monte Carlo standard error of up to
+0.09. The benchmark is built on the total indirect effect; when that
 quantity is small or zero despite active mediators, it has little to
-detect. The power-enhanced test reads the individual mediators directly,
-so it keeps its power across both settings.</p>
+detect. The power-enhanced test reads the individual mediators directly.
+The gap is larger at the article’s design, where the default tuning grid
+costs less power (see <code><a href="../reference/pe_lambda_grid.html">?pe_lambda_grid</a></code>): at
+<code>n = 300</code>, <code>p = 500</code>, and <code>c1 = 1</code> the
+article’s Figure 1(b) shows about 0.15 against 0.76.</p>
 </div>
 <div class="section level2">
-<h2 id="the-one-case-where-they-tie-homogeneous-mediation">The one case where they tie: homogeneous mediation<a class="anchor" aria-label="anchor" href="#the-one-case-where-they-tie-homogeneous-mediation"></a>
+<h2 id="homogeneous-mediation-both-tests-work-and-the-enhancement-still-helps">Homogeneous Mediation: Both Tests Work, and the Enhancement Still
+Helps<a class="anchor" aria-label="anchor" href="#homogeneous-mediation-both-tests-work-and-the-enhancement-still-helps"></a>
 </h2>
-<p>For completeness, the easy case. When every active mediator pushes
-the same way, the total indirect effect is large, the benchmark is
-already powerful, and the enhancement adds only a modest margin:</p>
+<p>The easy case. When every active mediator pushes the same way, the
+total indirect effect is large and the benchmark is already powerful;
+the enhancement adds a margin rather than a rescue:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pc_homo</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pe_power_curve.html">pe_power_curve</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">150</span>, p <span class="op">=</span> <span class="va">p</span>, outcome <span class="op">=</span> <span class="st">"continuous"</span>,</span>
 <span>                          pattern <span class="op">=</span> <span class="st">"homogeneous"</span>, c1_grid <span class="op">=</span> <span class="va">grid</span>, n_rep <span class="op">=</span> <span class="fl">30</span><span class="op">)</span></span>
 <span><span class="fu">draw</span><span class="op">(</span><span class="va">pc_homo</span>, <span class="st">"homogeneous"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="poem-vs-competitors_files/figure-html/homo-curve-1.png" class="r-plt" alt="Rejection-rate curves under homogeneous mediation, where HDMM and PE nearly coincide" width="403.2"></p>
-<p>This is the honest boundary of the claim: POEM does not beat the
-benchmark everywhere. It matches it where the benchmark is already
-strong, and pulls away where the benchmark is weak.</p>
+<p>At <code>c1 = 0.5</code> the benchmark rejects in 23 percent of
+replications and the power-enhanced test in 57 percent (the article’s
+Figure 1(a) prints 0.690 against 0.940 at its design). This is the
+honest boundary of the claim: where the benchmark is already strong POEM
+adds a margin, and where the benchmark is weak it pulls away.</p>
 </div>
 <div class="section level2">
 <h2 id="the-pattern-holds-for-binary-and-count-outcomes">The pattern holds for binary and count outcomes<a class="anchor" aria-label="anchor" href="#the-pattern-holds-for-binary-and-count-outcomes"></a>
 </h2>
 <p>The enhancement is not particular to continuous outcomes. Here is the
 rejection rate at a fixed contrasting signal (<code>c1 = 1</code>) for
-all three outcome models; the benchmark stays near its size while PE is
-far above it:</p>
+all three outcome models; the benchmark stays near its size (within
+Monte Carlo error, about 0.1 at 20 replications) while PE is well above
+it:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">at_c1</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">outcome</span>, <span class="va">c2</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">pc</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pe_power_curve.html">pe_power_curve</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">180</span>, p <span class="op">=</span> <span class="fl">50</span>, outcome <span class="op">=</span> <span class="va">outcome</span>,</span>
@@ -209,7 +219,7 @@ far above it:</p>
 <span>            binary     <span class="op">=</span> <span class="fu">at_c1</span><span class="op">(</span><span class="st">"binary"</span>, <span class="fl">1</span><span class="op">)</span>,</span>
 <span>            count      <span class="op">=</span> <span class="fu">at_c1</span><span class="op">(</span><span class="st">"count"</span>, <span class="fl">0.4</span><span class="op">)</span><span class="op">)</span>, <span class="fl">3</span><span class="op">)</span></span>
 <span><span class="co">#&gt;            HDMM  PE</span></span>
-<span><span class="co">#&gt; continuous 0.05 1.0</span></span>
+<span><span class="co">#&gt; continuous 0.05 0.5</span></span>
 <span><span class="co">#&gt; binary     0.15 0.7</span></span>
 <span><span class="co">#&gt; count      0.00 1.0</span></span></code></pre></div>
 </div>
@@ -221,19 +231,23 @@ also returns <em>which</em> mediators are active, and how reliably. Over
 repeated contrasting data sets, it recovers the active set with high
 precision and moderate recall, while keeping false positives rare:</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/pe_identification_study.html">pe_identification_study</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">150</span>, p <span class="op">=</span> <span class="fl">60</span>, outcome <span class="op">=</span> <span class="st">"continuous"</span>,</span>
-<span>                        pattern <span class="op">=</span> <span class="st">"contrasting"</span>, c1_grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
-<span>                        n_rep <span class="op">=</span> <span class="fl">30</span>, methods <span class="op">=</span> <span class="st">"Bonferroni"</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  c1 method     fwer    fdr     precision recall n_valid</span></span>
-<span><span class="co">#&gt;  0  Bonferroni 0.06667 0.06667 0         &lt;NA&gt;   30     </span></span>
-<span><span class="co">#&gt;  1  Bonferroni 0.06667 0.01778 0.981     0.475  30     </span></span>
+<code class="sourceCode R"><span><span class="va">id</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/pe_identification_study.html">pe_identification_study</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">150</span>, p <span class="op">=</span> <span class="fl">60</span>, outcome <span class="op">=</span> <span class="st">"continuous"</span>,</span>
+<span>                              pattern <span class="op">=</span> <span class="st">"contrasting"</span>, c1_grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>, <span class="fl">1</span><span class="op">)</span>,</span>
+<span>                              n_rep <span class="op">=</span> <span class="fl">30</span>, methods <span class="op">=</span> <span class="st">"Bonferroni"</span><span class="op">)</span></span>
+<span><span class="va">id</span></span>
+<span><span class="co">#&gt;  c1 method     fwer fdr precision recall  n_valid n_empty</span></span>
+<span><span class="co">#&gt;  0  Bonferroni 0    0   0         0       30      0      </span></span>
+<span><span class="co">#&gt;  1  Bonferroni 0    0   0.2667    0.06667 30      0      </span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Outcome model: continuous</span></span></code></pre></div>
-<p>At the null (<code>c1 = 0</code>) the family-wise error rate stays
-small and recall is undefined (there is nothing to recover); at
-<code>c1 = 1</code> precision is high. The benchmark offers no
-comparable list, because a total-indirect-effect test of zero points to
-no mediator at all.</p>
+<span><span class="co">#&gt; Outcome: continuous</span></span></code></pre></div>
+<p>The familywise error rate is 0.00 at the null and 0.00 at
+<code>c1 = 1</code>; precision and recall at <code>c1 = 1</code> are
+0.27 and 0.07 at this small design (30 replications). At the article’s
+design the supplement prints, for the contrasting setting at
+<code>c1 = 0.6</code>, a familywise error rate of 0.000 with precision
+0.403 and recall 0.122, which the default grid reproduces. The benchmark
+offers no comparable list, because a total-indirect-effect test of zero
+points to no mediator at all.</p>
 </div>
 <div class="section level2">
 <h2 id="on-real-data">On real data<a class="anchor" aria-label="anchor" href="#on-real-data"></a>
@@ -245,9 +259,11 @@ not:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">imr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/WHO_mediation_analysis.html">WHO_mediation_analysis</a></span><span class="op">(</span><span class="st">"imr"</span>, groupings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"global"</span>, <span class="st">"region"</span>, <span class="st">"income"</span><span class="op">)</span>,</span>
 <span>                              lambda_grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">5</span>, length.out <span class="op">=</span> <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: The fit failed in 1 group, reported as NA: AMR (system is</span></span>
+<span><span class="co">#&gt; computationally singular: reciprocal condition number = 1.3074e-17)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">imr</span><span class="op">)</span></span>
 <span><span class="co">#&gt; POEM comparison: IMR</span></span>
-<span><span class="co">#&gt;   groups: 11 (10 with data), alpha = 0.05</span></span>
+<span><span class="co">#&gt;   groups: 11 (10 with data), alpha_level = 0.05</span></span>
 <span><span class="co">#&gt;   detected by benchmark (HDMM): 4   by power-enhanced (PE): 7</span></span>
 <span><span class="co">#&gt;   PE detects mediation in 3 groups the benchmark misses:</span></span>
 <span><span class="co">#&gt;  group n_countries pval_hdmm  pval_pe  active_mediators</span></span>
@@ -296,7 +312,7 @@ same.)</p>
 <tr class="even">
 <td>Homogeneous mediation</td>
 <td>powerful</td>
-<td>powerful (matches)</td>
+<td>powerful, with a margin</td>
 </tr>
 <tr class="odd">
 <td>Heterogeneous: fully cancelling</td>
@@ -320,15 +336,16 @@ same.)</p>
 </tr>
 </tbody>
 </table>
-<p>PE never does worse on size, matches the benchmark where the
-benchmark is already strong, and supplies power where the benchmark has
-none. That is the whole of the claim, and the rows above are the
-evidence for it.</p>
+<p>PE holds its size within Monte Carlo error of the nominal level in
+every setting the article reports, adds a margin where the benchmark is
+already strong, and supplies power where the benchmark has little. That
+is the whole of the claim, and the rows above are the evidence for
+it.</p>
 </div>
 <div class="section level2">
 <h2 id="folding-in-other-comparators">Folding in other comparators<a class="anchor" aria-label="anchor" href="#folding-in-other-comparators"></a>
 </h2>
-<p>The manuscript also benchmarks against HILMA (Zhou et al. 2020),
+<p>The article also benchmarks against HILMA (Zhou et al. 2020),
 GlobalTest (Djordjilovic et al. 2019), and, for individual-mediator
 identification, HDMT (Dai et al. 2022) and DACT (Liu et al. 2022). Those
 methods live in their own packages, which POEM does not depend on. If
@@ -352,7 +369,7 @@ same simulated data. For example:</p>
 <p>Run on contrasting data, the total-indirect-effect methods (HDMM,
 HILMA) behave alike, because they are built on the quantity that
 cancels, while the power-enhanced test detects the active mediators, the
-comparison the manuscript’s figures report in full.</p>
+comparison the article’s figures report in full.</p>
 </div>
 <div class="section level2">
 <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
@@ -363,7 +380,63 @@ American Statistical Association</em>.</p>
 <p>Guo, X., Li, R., Liu, J., &amp; Zeng, M. (2022). High-dimensional
 mediation analysis for selecting DNA methylation loci mediating
 childhood trauma and cortisol stress reactivity. <em>Journal of the
-American Statistical Association, 117</em>(539), 1110–1121.</p>
+American Statistical Association, 117</em>(539), 1110–1121. <a href="https://doi.org/10.1080/01621459.2022.2053136" class="external-link uri">https://doi.org/10.1080/01621459.2022.2053136</a></p>
+<p>Zhou, R. R., Wang, L., &amp; Zhao, S. D. (2020). Estimation and
+inference for the indirect effect in high-dimensional linear mediation
+models. <em>Biometrika, 107</em>(3), 573–589. <a href="https://doi.org/10.1093/biomet/asaa016" class="external-link uri">https://doi.org/10.1093/biomet/asaa016</a></p>
+<p>Djordjilovic, V., Page, C. M., Gran, J. M., Nost, T. H., Sandanger,
+T. M., Veierod, M. B., &amp; Thoresen, M. (2019). Global test for
+high-dimensional mediation: Testing groups of potential mediators.
+<em>Statistics in Medicine, 38</em>(18), 3346–3360. <a href="https://doi.org/10.1002/sim.8199" class="external-link uri">https://doi.org/10.1002/sim.8199</a></p>
+<p>Dai, J. Y., Stanford, J. L., &amp; LeBlanc, M. (2022). A
+multiple-testing procedure for high-dimensional mediation hypotheses.
+<em>Journal of the American Statistical Association, 117</em>(537),
+198–213. <a href="https://doi.org/10.1080/01621459.2020.1765785" class="external-link uri">https://doi.org/10.1080/01621459.2020.1765785</a></p>
+<p>Liu, Z., Shen, J., Barfield, R., Schwartz, J., Baccarelli, A. A.,
+&amp; Lin, X. (2022). Large-scale hypothesis testing for causal
+mediation effects with applications in genome-wide epigenetic studies.
+<em>Journal of the American Statistical Association, 117</em>(537),
+67–81. <a href="https://doi.org/10.1080/01621459.2021.1914634" class="external-link uri">https://doi.org/10.1080/01621459.2021.1914634</a></p>
+</div>
+<div class="section level2">
+<h2 id="session-information">Session Information<a class="anchor" aria-label="anchor" href="#session-information"></a>
+</h2>
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; R version 4.6.1 (2026-06-24)</span></span>
+<span><span class="co">#&gt; Platform: x86_64-pc-linux-gnu</span></span>
+<span><span class="co">#&gt; Running under: Ubuntu 24.04.5 LTS</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Matrix products: default</span></span>
+<span><span class="co">#&gt; BLAS:   /usr/lib/x86_64-linux-gnu/openblas-pthread/libblas.so.3 </span></span>
+<span><span class="co">#&gt; LAPACK: /usr/lib/x86_64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; locale:</span></span>
+<span><span class="co">#&gt;  [1] LC_CTYPE=C.UTF-8       LC_NUMERIC=C           LC_TIME=C.UTF-8       </span></span>
+<span><span class="co">#&gt;  [4] LC_COLLATE=C.UTF-8     LC_MONETARY=C.UTF-8    LC_MESSAGES=C.UTF-8   </span></span>
+<span><span class="co">#&gt;  [7] LC_PAPER=C.UTF-8       LC_NAME=C              LC_ADDRESS=C          </span></span>
+<span><span class="co">#&gt; [10] LC_TELEPHONE=C         LC_MEASUREMENT=C.UTF-8 LC_IDENTIFICATION=C   </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; time zone: UTC</span></span>
+<span><span class="co">#&gt; tzcode source: system (glibc)</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; attached base packages:</span></span>
+<span><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; other attached packages:</span></span>
+<span><span class="co">#&gt; [1] POEM_1.0.0</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
+<span><span class="co">#&gt;  [1] cli_3.6.6         knitr_1.52        rlang_1.3.0       xfun_0.61        </span></span>
+<span><span class="co">#&gt;  [5] otel_0.2.0        generics_0.1.4    textshaping_1.0.5 jsonlite_2.0.0   </span></span>
+<span><span class="co">#&gt;  [9] htmltools_0.5.9   ragg_1.5.2        sass_0.4.10       glmnet_5.1       </span></span>
+<span><span class="co">#&gt; [13] rmarkdown_2.32    grid_4.6.1        evaluate_1.0.5    jquerylib_0.1.4  </span></span>
+<span><span class="co">#&gt; [17] fastmap_1.2.0     foreach_1.5.2     yaml_2.3.12       lifecycle_1.0.5  </span></span>
+<span><span class="co">#&gt; [21] compiler_4.6.1    codetools_0.2-20  fs_2.1.0          Rcpp_1.1.2       </span></span>
+<span><span class="co">#&gt; [25] lattice_0.22-9    systemfonts_1.3.2 digest_0.6.39     R6_2.6.1         </span></span>
+<span><span class="co">#&gt; [29] ncvreg_3.16.0     splines_4.6.1     shape_1.4.6.1     bslib_0.12.0     </span></span>
+<span><span class="co">#&gt; [33] Matrix_1.7-5      tools_4.6.1       iterators_1.0.14  survival_3.8-6   </span></span>
+<span><span class="co">#&gt; [37] pkgdown_2.2.1     cachem_1.1.0      desc_1.4.3</span></span></code></pre></div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

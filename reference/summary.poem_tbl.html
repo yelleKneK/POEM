@@ -48,7 +48,7 @@ any other poem_tbl it falls back to the ordinary data-frame summary."><meta prop
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Summarize a POEM table</h1>
-      <small class="dont-index">Source: <a href="https://github.com/yelleKneK/POEM/blob/v1.0.0/R/summary_poem_tbl.R" class="external-link"><code>R/summary_poem_tbl.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/yelleKneK/POEM/blob/main/R/summary_poem_tbl.R" class="external-link"><code>R/summary_poem_tbl.R</code></a></small>
       <div class="d-none name"><code>summary.poem_tbl.Rd</code></div>
     </div>
 
@@ -66,7 +66,7 @@ any other <code>poem_tbl</code> it falls back to the ordinary data-frame summary
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'poem_tbl'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">object</span>, alpha <span class="op">=</span> <span class="fl">0.05</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">object</span>, alpha_level <span class="op">=</span> <span class="fl">0.05</span>, <span class="va">...</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -77,7 +77,7 @@ any other <code>poem_tbl</code> it falls back to the ordinary data-frame summary
 <dd><p>A <code>poem_tbl</code>.</p></dd>
 
 
-<dt id="arg-alpha">alpha<a class="anchor" aria-label="anchor" href="#arg-alpha"></a></dt>
+<dt id="arg-alpha-level">alpha_level<a class="anchor" aria-label="anchor" href="#arg-alpha-level"></a></dt>
 <dd><p>Significance level for counting a group as a detection.
 Default 0.05.</p></dd>
 
@@ -90,7 +90,7 @@ Default 0.05.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>For a grouped comparison table, an object of class
 <code>summary.poem_tbl</code> (a list, printed by its own method) with elements
-<code>outcome</code>, <code>alpha</code>, <code>n_groups</code>, <code>n_with_data</code>, <code>n_hdmm</code>, <code>n_pe</code> (groups
+<code>outcome</code>, <code>alpha_level</code>, <code>n_groups</code>, <code>n_with_data</code>, <code>n_hdmm</code>, <code>n_pe</code> (groups
 detected by each test), <code>pe_only</code> (a <code>data.frame</code> of the groups the PE
 test detects but the benchmark does not), and <code>top_mediators</code> (a
 frequency table of flagged mediators). For any other <code>poem_tbl</code>, the
@@ -100,6 +100,7 @@ value of <code><a href="https://rdrr.io/r/base/summary.html" class="external-lin
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="WHO_mediation_analysis.html">WHO_mediation_analysis()</a></code>, <code><a href="pe_mediation.html">pe_mediation()</a></code>.</p>
 <p>Other mediation tests:
+<code><a href="pe_lambda_grid.html">pe_lambda_grid()</a></code>,
 <code><a href="pe_mediate.html">pe_mediate()</a></code>,
 <code><a href="pe_mediation.html">pe_mediation()</a></code>,
 <code><a href="pe_mediation_linear.html">pe_mediation_linear()</a></code>,
@@ -115,22 +116,23 @@ value of <code><a href="https://rdrr.io/r/base/summary.html" class="external-lin
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="WHO_mediation_analysis.html">WHO_mediation_analysis</a></span><span class="op">(</span><span class="st">"imr"</span>, groupings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"global"</span>, <span class="st">"region"</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># The global and income-group infant-mortality models on a 25-point</span></span></span>
+<span class="r-in"><span><span class="co"># tuning grid, which keeps the example fast; the article's tables use</span></span></span>
+<span class="r-in"><span><span class="co"># the default 100-point grid.</span></span></span>
+<span class="r-in"><span><span class="va">res</span> <span class="op">&lt;-</span> <span class="fu"><a href="WHO_mediation_analysis.html">WHO_mediation_analysis</a></span><span class="op">(</span><span class="st">"imr"</span>, groupings <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"global"</span>, <span class="st">"income"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>                              lambda_grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.1</span>, <span class="fl">10</span>, length.out <span class="op">=</span> <span class="fl">25</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> POEM comparison: IMR</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   groups: 7 (7 with data), alpha = 0.05</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   detected by benchmark (HDMM): 3   by power-enhanced (PE): 5</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   PE detects mediation in 2 groups the benchmark misses:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  group n_countries pval_hdmm  pval_pe  active_mediators</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   SEAR           5     0.309 4.13e-41    ext_usd2021_pc</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>    WPR           9     0.872 3.77e-83 chi_che, pvtd_gdp</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   groups: 5 (5 with data), alpha_level = 0.05</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   detected by benchmark (HDMM): 2   by power-enhanced (PE): 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   PE detects mediation in 1 group the benchmark misses:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  group n_countries pval_hdmm  pval_pe active_mediators</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    Low          16     0.432 7.82e-49     pvtd_usd2021</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   most-flagged mediators:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     gge_gdp            2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     chi_che            1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     ext_usd2021_pc     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     pvtd_gdp           1</span>
-<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     gge_gdp            1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     oops_che           1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     pvtd_usd2021       1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     shi_che            1</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

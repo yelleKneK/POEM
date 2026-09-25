@@ -42,7 +42,7 @@ pe_mediation()."><meta property="og:image" content="https://yelleknek.github.io/
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="../logo.svg" class="logo" alt=""><h1>Power-enhanced mediation test for a binary outcome</h1>
-      <small class="dont-index">Source: <a href="https://github.com/yelleKneK/POEM/blob/v1.0.0/R/pe_mediation_logistic.R" class="external-link"><code>R/pe_mediation_logistic.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/yelleKneK/POEM/blob/main/R/pe_mediation_logistic.R" class="external-link"><code>R/pe_mediation_logistic.R</code></a></small>
       <div class="d-none name"><code>pe_mediation_logistic.Rd</code></div>
     </div>
 
@@ -67,8 +67,8 @@ power-enhanced (PE) test. This is the binary-outcome worker behind
 <span>  conf_level <span class="op">=</span> <span class="fl">0.95</span>,</span>
 <span>  report_all_methods <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  drop_constant <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  lambda_grid <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">0.05</span>, <span class="fl">1</span>, length.out <span class="op">=</span> <span class="fl">20</span><span class="op">)</span>,</span>
-<span>  lambda_grid_reduced <span class="op">=</span> <span class="va">lambda_grid</span></span>
+<span>  lambda_grid <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  lambda_grid_reduced <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -90,7 +90,10 @@ integer counts for <code>"count"</code>.</p></dd>
 
 <dt id="arg-m">M<a class="anchor" aria-label="anchor" href="#arg-m"></a></dt>
 <dd><p>Numeric matrix of candidate mediators with \(n\) rows and
-\(p\) columns; \(p\) may exceed \(n\).</p></dd>
+\(p\) columns; \(p\) may exceed \(n\). Column names, when
+present, label the active mediators in the print footer and the
+mediator table; without them mediators are reported by column
+position.</p></dd>
 
 
 <dt id="arg-z">Z<a class="anchor" aria-label="anchor" href="#arg-z"></a></dt>
@@ -100,7 +103,7 @@ Default <code>NULL</code> (no confounders).</p></dd>
 
 <dt id="arg-method">method<a class="anchor" aria-label="anchor" href="#arg-method"></a></dt>
 <dd><p>Multiplicity adjustment used to screen individual
-mediators in the PE component: <code>"Bonferroni"</code> (family-wise error
+mediators in the PE component: <code>"Bonferroni"</code> (familywise error
 rate control, the default), <code>"BH"</code>, or <code>"BY"</code> (false discovery rate
 control; <code>"BH"</code> assumes independence or positive dependence among
 mediators, <code>"BY"</code> is valid under arbitrary dependence).</p></dd>
@@ -114,7 +117,7 @@ centered) before fitting, as the method assumes.</p></dd>
 
 <dt id="arg-error-level">error_level<a class="anchor" aria-label="anchor" href="#arg-error-level"></a></dt>
 <dd><p>Target error rate for the mediator-screening step,
-in \((0, 1)\). Interpreted as the family-wise error rate when
+in \((0, 1)\). Interpreted as the familywise error rate when
 <code>method = "Bonferroni"</code> and as the false discovery rate when
 <code>method = "BH"</code> or <code>"BY"</code>. Default 0.05. This is distinct from the
 significance level used to test the global null (which is the user's
@@ -145,14 +148,26 @@ subgroups where some mediators happen to be constant.</p></dd>
 
 <dt id="arg-lambda-grid">lambda_grid<a class="anchor" aria-label="anchor" href="#arg-lambda-grid"></a></dt>
 <dd><p>Numeric vector of candidate SCAD tuning parameters
-for the penalized fit; the value minimizing the high-dimensional BIC
-is chosen. Default <code>seq(0.05, 1, length.out = 20)</code>.</p></dd>
+for the penalized mediator fit; the fit is repeated at each value and
+the one minimizing the high-dimensional BIC (HBIC) is kept. Default
+<code>NULL</code> uses, for a continuous outcome, <code><a href="pe_lambda_grid.html">pe_lambda_grid()</a></code>: the grid
+the article's simulations used at their design, rescaled to this <code>n</code>
+and <code>p</code> by the rate \(\sqrt{\log p / n}\) the theory requires of the
+tuning parameter; for a binary or count outcome it uses the review-era
+grid <code>seq(0.05, 1, length.out = 20)</code>. The grid's lower end matters
+most, because the HBIC minimum often sits there and because it decides
+whether the identified set keeps its error-rate guarantee; see
+<code><a href="pe_lambda_grid.html">pe_lambda_grid()</a></code> for the trade-off with power, measured. The value
+chosen is reported in the <code>"tuning"</code> attribute and the print footer.</p></dd>
 
 
 <dt id="arg-lambda-grid-reduced">lambda_grid_reduced<a class="anchor" aria-label="anchor" href="#arg-lambda-grid-reduced"></a></dt>
 <dd><p>Numeric vector of candidate tuning
-parameters for the reduced-model fit (continuous outcome only).
-Defaults to <code>lambda_grid</code>.</p></dd>
+parameters for the reduced-model fit that the continuous-outcome Wald
+test refits (unused for binary and count outcomes). Default <code>NULL</code>
+uses <code><a href="pe_lambda_grid.html">pe_lambda_grid()</a></code> with <code>model = "reduced"</code> when <code>lambda_grid</code> is
+also <code>NULL</code> (the article's reduced-model grid, rescaled), and
+otherwise <code>lambda_grid</code> itself.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -176,15 +191,17 @@ log-odds scale, not the probability scale.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>
-    <p>Guo, X., Li, R., Liu, J., Zeng, M., and Wang, H. (2024). Statistical
-inference for high-dimensional generalized mediation analysis.
-(Working paper.)</p>
+    <p>Guo, X., Li, R., Liu, J., and Zeng, M. (2024). Estimations and tests
+for generalized mediation models with high-dimensional potential
+mediators. <em>Journal of Business &amp; Economic Statistics, 42</em>(1),
+243–256. <a href="https://doi.org/10.1080/07350015.2023.2174548" class="external-link">doi:10.1080/07350015.2023.2174548</a></p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p><code><a href="pe_mediation.html">pe_mediation()</a></code>, <code><a href="pe_mediation_linear.html">pe_mediation_linear()</a></code>,
 <code><a href="pe_mediation_poisson.html">pe_mediation_poisson()</a></code>.</p>
 <p>Other mediation tests:
+<code><a href="pe_lambda_grid.html">pe_lambda_grid()</a></code>,
 <code><a href="pe_mediate.html">pe_mediate()</a></code>,
 <code><a href="pe_mediation.html">pe_mediation()</a></code>,
 <code><a href="pe_mediation_linear.html">pe_mediation_linear()</a></code>,
@@ -201,25 +218,28 @@ inference for high-dimensional generalized mediation analysis.
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">113</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Contrasting mediation with a binary outcome: the benchmark Wald test</span></span></span>
+<span class="r-in"><span><span class="co"># does not reject, the PE test does and identifies an active mediator.</span></span></span>
 <span class="r-in"><span><span class="va">d</span> <span class="op">&lt;-</span> <span class="fu"><a href="simulate_mediation_data.html">simulate_mediation_data</a></span><span class="op">(</span>n <span class="op">=</span> <span class="fl">200</span>, p <span class="op">=</span> <span class="fl">60</span>, pattern <span class="op">=</span> <span class="st">"contrasting"</span>,</span></span>
-<span class="r-in"><span>                             outcome <span class="op">=</span> <span class="st">"binary"</span>, c1 <span class="op">=</span> <span class="fl">0.5</span>, c2 <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span>                             outcome <span class="op">=</span> <span class="st">"binary"</span>, c1 <span class="op">=</span> <span class="fl">1</span>, c2 <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">pe_mediation_logistic</span><span class="op">(</span><span class="va">d</span><span class="op">$</span><span class="va">X</span>, <span class="va">d</span><span class="op">$</span><span class="va">Y</span>, <span class="va">d</span><span class="op">$</span><span class="va">M</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  term                  value  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  stat_hdmm             1.842  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  pval_hdmm             0.1748 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  stat_pe               1.842  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  j_pe                  0      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  pval_pe               0.1748 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_effect -0.282 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_lower  -0.6894</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_upper  0.1253 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  n_active_mediators    0      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  df                    1      </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  n_candidate_mediators 60     </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  n_observations        200    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  term                  value   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  stat_hdmm             1.735   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  pval_hdmm             0.1878  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  stat_pe               141.1   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  j_pe                  139.4   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  pval_pe               &lt; 0.0001</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_effect -0.2699 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_lower  -0.6716 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  total_indirect_upper  0.1317  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  n_active_mediators    1       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  df                    1       </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  n_candidate_mediators 60      </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  n_observations        200     </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Outcome model: binary (logistic)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Active mediators identified: none</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Active mediators identified (1): 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Tuning parameter (HBIC): lambda = 0.05 from 20 values in [0.05, 1] (the grid's lower end)</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

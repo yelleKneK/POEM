@@ -71,6 +71,7 @@ for the matrix interface,
 for the worked health-expenditure design.
 
 Other mediation tests:
+[`pe_lambda_grid()`](https://yelleknek.github.io/POEM/reference/pe_lambda_grid.md),
 [`pe_mediation()`](https://yelleknek.github.io/POEM/reference/pe_mediation.md),
 [`pe_mediation_linear()`](https://yelleknek.github.io/POEM/reference/pe_mediation_linear.md),
 [`pe_mediation_logistic()`](https://yelleknek.github.io/POEM/reference/pe_mediation_logistic.md),
@@ -88,25 +89,27 @@ Xiufan Yu and Ken Kelley
 ``` r
 # Build a small data frame and test through the formula interface.
 set.seed(113)
-d <- simulate_mediation_data(n = 150, p = 40, outcome = "continuous",
+d <- simulate_mediation_data(n = 200, p = 60, outcome = "continuous",
                              pattern = "contrasting", c1 = 1)
 df <- data.frame(y = d$Y, x = d$X[, 1], d$M)
 meds <- grep("^X", names(df), value = TRUE)   # the mediator columns
+# The mediator columns are named, so the footer names the active ones.
 pe_mediate(y ~ x, data = df, mediators = meds, outcome = "continuous")
 #>  term                  value   
-#>  stat_hdmm             0.1615  
-#>  pval_hdmm             0.6878  
-#>  stat_pe               440.3   
-#>  j_pe                  440.1   
+#>  stat_hdmm             0.03881 
+#>  pval_hdmm             0.8438  
+#>  stat_pe               174.2   
+#>  j_pe                  174.1   
 #>  pval_pe               < 0.0001
-#>  total_indirect_effect -0.03065
-#>  total_indirect_lower  -0.1801 
-#>  total_indirect_upper  0.1188  
-#>  n_active_mediators    2       
+#>  total_indirect_effect 0.01054 
+#>  total_indirect_lower  -0.0943 
+#>  total_indirect_upper  0.1154  
+#>  n_active_mediators    1       
 #>  df                    1       
-#>  n_candidate_mediators 40      
-#>  n_observations        150     
+#>  n_candidate_mediators 60      
+#>  n_observations        200     
 #> 
 #> Outcome model: continuous (linear)
-#> Active mediators identified (2): 3, 4
+#> Active mediators identified (1): X2
+#> Tuning parameter (HBIC): lambda = 0.199 from 20 values in [0.199, 0.388] (the grid's lower end)
 ```
